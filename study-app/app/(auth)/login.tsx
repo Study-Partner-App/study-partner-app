@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from "@/lib/supabase";
+import { styles } from '@/lib/styles';
 
 const LoginPage = () => {
     const router = useRouter();
@@ -32,8 +33,8 @@ const LoginPage = () => {
             return;
         }
 
-        //Now that the user is signed in, send them back to the landing page.
-        router.push('./app/index');
+        //Now that the user is signed in, send them back to the landing page by popping until we reach the landing page.
+        router.dismissTo('./index');
     };
 
     const handleCreateAccount = () => {
@@ -62,27 +63,5 @@ const LoginPage = () => {
         </View>
     )   
 };
-
-//Some temporary styles, just to make things work for now.
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#000000',
-    },
-    text: {
-        color: '#ffffff',
-    },
-    input: {
-        height: 40,
-        width: '60%',
-        borderColor: 'gray',
-        borderWidth: 1,
-        marginBottom: 10,
-        paddingHorizontal: 10,
-        backgroundColor: '#ffffff',
-    }
-});
 
 export default LoginPage;
