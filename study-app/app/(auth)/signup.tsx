@@ -11,12 +11,11 @@ const SignUpPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [university, setUniversity] = useState('');
+    const [major, setMajor] = useState('');
 
     const [firstName, setFirstName] = useState('');             // Will be optional
     const [lastName, setLastName] = useState('');               // Will be optional
-
-    const [university, setUniversity] = useState('');
-    const [major, setMajor] = useState('');
 
     //This is just an array that contains all of the required fields for later checks.
     let reqFields: string[] = ['email', 'pass', 'confirm', 'uni', 'major'];
@@ -111,14 +110,14 @@ const SignUpPage = () => {
             <TextInput 
                 style={styles.input}
                 placeholder="Email"
-                placeholderTextColor={'#000000'}
+                placeholderTextColor={'#0000004b'}
                 value={email}
                 onChangeText={handleEmail}
             />
             <TextInput
                 style={styles.input}
                 placeholder="Password"
-                placeholderTextColor={'#000000'}
+                placeholderTextColor={'#0000004b'}
                 value={password}
                 onChangeText={handlePassword}
                 secureTextEntry
@@ -126,7 +125,7 @@ const SignUpPage = () => {
             <TextInput
                 style={styles.input}
                 placeholder="Confirm Password"
-                placeholderTextColor={'#000000'}
+                placeholderTextColor={'#0000004b'}
                 value={confirmPassword}
                 onChangeText={handleConfirmPassword}
                 secureTextEntry
@@ -134,28 +133,28 @@ const SignUpPage = () => {
             <TextInput
                 style={styles.input}
                 placeholder="University"
-                placeholderTextColor={'#000000'}
+                placeholderTextColor={'#0000004b'}
                 value={university}
                 onChangeText={handleUniversity}
             />
             <TextInput
                 style={styles.input}
                 placeholder="Major"
-                placeholderTextColor={'#000000'}
+                placeholderTextColor={'#0000004b'}
                 value={major}
                 onChangeText={handleMajor}
             />
             <TextInput
                 style={styles.input}
                 placeholder="(Optional) First Name"
-                placeholderTextColor={'#000000'}
+                placeholderTextColor={'#0000004b'}
                 value={firstName}
                 onChangeText={handleFirstName}
             />
             <TextInput
                 style={styles.input}
                 placeholder="(Optional) Last Name"
-                placeholderTextColor={'#000000'}
+                placeholderTextColor={'#0000004b'}
                 value={lastName}
                 onChangeText={handleLastName}
             />
