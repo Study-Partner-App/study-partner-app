@@ -46,11 +46,6 @@ const SignUpPage = () => {
     
     //This will handle submitting the user's sign up information to supabase.
     const handleSubmit = async () => {
-        //Check that the password and confirm password match.
-        if (password !== confirmPassword) {
-            alert("Passwords do not match!");
-            return;
-        }
 
         // Save all of the information the user has provided into a map, mapping the fields to the values
         let fieldMap = new Map<string, string>([
@@ -74,6 +69,12 @@ const SignUpPage = () => {
                 } 
                 // Otherwise, the field contained a value, and we can just move on.
             }
+        }
+
+        //Check that the password and confirm password match.
+        if (password !== confirmPassword) {
+            alert("Passwords do not match!");
+            return;
         }
 
         //Use the supabase.auth.signUp function to put the user into the database, then add that user to the profiles table with the additional info.
