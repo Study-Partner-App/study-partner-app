@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, TextInput, Button } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from "@/lib/supabase";
 import { styles } from '@/lib/styles';

@@ -1,3 +1,4 @@
+import { Button } from '@react-navigation/elements';
 import { StyleSheet } from 'react-native';
 
 //Some temporary styles, just to make things work for now.
@@ -7,6 +8,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#000000',
+        padding: 16
     },
     text: {
         color: '#ffffff',
