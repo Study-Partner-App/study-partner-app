@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, TextInput, Button } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from "@/lib/supabase";
 import { styles } from '@/lib/styles';
@@ -34,7 +34,7 @@ const LoginPage = () => {
         }
 
         //Now that the user is signed in, send them back to the landing page by popping until we reach the landing page.
-        router.dismissTo('./index');
+        router.dismissTo('/');
     };
 
     const handleCreateAccount = () => {
@@ -46,14 +46,14 @@ const LoginPage = () => {
             <TextInput 
                 style={styles.input}
                 placeholder="Email"
-                placeholderTextColor={'#000000'}
+                placeholderTextColor={'#0000004b'}
                 value={email}
                 onChangeText={handleEmail}
             />
             <TextInput
                 style={styles.input}
                 placeholder="Password"
-                placeholderTextColor={'#000000'}
+                placeholderTextColor={'#0000004b'}
                 value={password}
                 onChangeText={handlePassword}
                 secureTextEntry
