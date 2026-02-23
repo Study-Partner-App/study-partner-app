@@ -90,7 +90,7 @@ const scoreSession = (
   if (selectedCourse && session.course == selectedCourse) score += 3
 
   //Subject match gets medium weight
-  if (selectedSubject && session.subject == selectedSubject) score += 2
+  if (session.subject === selectedSubject) score += 2;
 
   //Time overlap gets the least weight
   if (
@@ -330,11 +330,11 @@ if (selectedCourse) {
   );
 }
 
-//Filter subject if provided
+//Filter subject (required)
 if (selectedSubject) {
   filtered = filtered.filter(
-    (s) => s.subject?.toLowerCase() === selectedSubject.toLowerCase()
-  );
+  (s) => s.subject?.toLowerCase() === selectedSubject.toLowerCase()
+);
 }
 
 //Now apply scoring only for sorting

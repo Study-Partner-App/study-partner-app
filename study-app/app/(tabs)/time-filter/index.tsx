@@ -26,7 +26,7 @@ export default function Index() {
       startTime,
       endTime,
       selectedCourse || undefined,
-      selectedSubject || undefined
+      selectedSubject
     );
 
     // Flatten grouped sessions for raw display
@@ -71,6 +71,13 @@ export default function Index() {
       />
 
       {/* ------------------ Optional Priority Inputs ------------------ */}
+       <Text>Subject</Text>
+      <TextInput
+        value={selectedSubject}
+        onChangeText={setSelectedSubject}
+        style={{ borderWidth: 1, padding: 5, marginBottom: 10 }}
+      />
+
       <Text>Course (optional)</Text>
       <TextInput
         value={selectedCourse}
@@ -78,12 +85,6 @@ export default function Index() {
         style={{ borderWidth: 1, padding: 5, marginBottom: 10 }}
       />
 
-      <Text>Subject (optional)</Text>
-      <TextInput
-        value={selectedSubject}
-        onChangeText={setSelectedSubject}
-        style={{ borderWidth: 1, padding: 5, marginBottom: 10 }}
-      />
 
       <Button title="Run Test" onPress={loadSessions} />
 
