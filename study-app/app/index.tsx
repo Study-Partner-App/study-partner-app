@@ -12,8 +12,7 @@ export default function IndexPage() {
 
     //Check if the user is already signed in.  
     supabase.auth.getUser().then(({ data: { user } }) => {
-        //Since TS evaluates null values as false, then if there is no session,
-        // the session flag will remain false, meaning the user must sign in.
+        // If there is no user, then the login flag remains false, and the user will be asked to login.
         if (user === null) {
             setLoginFlag(false);
         } else {
@@ -32,10 +31,18 @@ export default function IndexPage() {
         //router.push('');
     }
 
+    //A function for handling the sign out behaviour.
+    const handleSignOut = async () => {
+        await supabase.auth.signOut();
+
+        //Now, reset the navigation to restart the auth.
+        router.dismissTo('/')
+    }
+
     // Determine whether the user is signed in, and display the appropriate button.
     // If the login flag is true, display the profile button, otherwise, display the login button.
-    const buttonTitle = loginFlag ? "Profile" : "Log In";
-    const buttonAction = loginFlag ? handleProfile : handleLogin;
+    const buttonTitle = loginFlag ? "Sign Out" : "Log In";
+    const buttonAction = loginFlag ? handleSignOut : handleLogin;
 
     return (
         <View style={styles.container}>
