@@ -28,6 +28,11 @@ study-app/
 │   │   │   ├── index.tsx          # MatchingScreen
 │   │   │   ├── MatchCard.tsx
 │   │   │   └── useMatching.ts
+|   |   |
+|   |   ├──study-sessions/         
+|   |   |   ├── index.tsx          # SessionsScreen
+|   |   |   ├── create_sessions.tsx
+|   |   |   ├── view_session.tsx
 │   │   │
 │   │   └── _layout.tsx            # Bottom tabs
 │   │

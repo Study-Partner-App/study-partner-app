@@ -39,6 +39,10 @@ export default function IndexPage() {
         router.dismissTo('/')
     }
 
+    const handleStudyNav = () => {
+        router.navigate('./(tabs)/study-sessions/');
+    }
+
     // Determine whether the user is signed in, and display the appropriate button.
     // If the login flag is true, display the profile button, otherwise, display the login button.
     const buttonTitle = loginFlag ? "Sign Out" : "Log In";
@@ -48,6 +52,7 @@ export default function IndexPage() {
         <View style={styles.container}>
             <Text style={styles.text}>Landing Page</Text>
             <Button title={buttonTitle} onPress={buttonAction} />
+            <Button title='Study Sessions' onPress={handleStudyNav}/>
         </View>
     );
 }

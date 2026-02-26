@@ -7,7 +7,7 @@ import { styles } from '@/lib/styles';
 const LoginPage = () => {
     const router = useRouter();
 
-    //These following is a list of states to hold the user's login info.
+    //The following is a list of states to hold the user's login info.
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
