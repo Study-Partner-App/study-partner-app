@@ -353,5 +353,3 @@ const scoredSessions = filtered
 
   return scoredSessions
 }
-
-
