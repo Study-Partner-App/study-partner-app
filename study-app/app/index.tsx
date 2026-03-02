@@ -17,7 +17,7 @@ export default function IndexPage() {
             setLoginFlag(false);
         } else {
             setLoginFlag(true);
-        }})
+        }});
 
     //A quick function to handle behavior for pressing login.
     const handleLogin = () => {
@@ -29,7 +29,7 @@ export default function IndexPage() {
     // For now, it will just be a placeholder.
     const handleProfile = () => {
         //router.push('');
-    }
+    };
 
     //A function for handling the sign out behaviour.
     const handleSignOut = async () => {
@@ -37,7 +37,7 @@ export default function IndexPage() {
 
         //Now, reset the navigation to restart the auth.
         router.dismissTo('/')
-    }
+    };
 
     const handleStudyNav = () => {
         router.navigate('./(tabs)/study-sessions/');
