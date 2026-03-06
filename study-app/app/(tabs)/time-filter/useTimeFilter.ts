@@ -11,6 +11,103 @@ import { supabase } from '@/lib/supabase'
 //Subject itself should have more weight in priorirty list than time, even if time overlap isn't as strong
 // Priority should go in this order: Course ---> Subject ---> Time overlap
 
+/**
+ *
+ * 30-minute time utilities
+ *
+ */
+
+/**
+ * Convert HH:MM (24h) to minutes since midnight.
+ * EX: 14:30 -> 870
+ */
+export const hhmmToMinutes = (hhmm: string): number => {
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
+};
+
+/**
+ * Convert minutes since midnight back to HH:MM (24h).
+ * 
+ */
+export const minutesToHhmm = (total: number): string => {
+  const m = ((total % 1440) + 1440) % 1440; // clamp within [0, 1439]
+  const h = Math.floor(m / 60);
+  const mm = m % 60;
+  return `${String(h).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+};
+
+/**
+ * True if HH:MM is exactly on a 30-minute boundary.
+ * Allowed minute values: 00 or 30.
+ */
+export const isOnThirtyBoundary = (hhmm: string): boolean => {
+  const mins = hhmmToMinutes(hhmm);
+  return mins % 30 === 0;
+};
+
+/**
+ * Snap a given HH:MM to the 30 minute grid
+ * mode = floor | ceil | nearest
+ */
+export const snapToThirty = (
+  hhmm: string,
+  mode: 'floor' | 'ceil' | 'nearest' = 'nearest'
+): string => {
+  const mins = hhmmToMinutes(hhmm);
+  const remainder = mins % 30;
+
+  if (remainder === 0) return hhmm; //already aligned
+
+  if (mode === 'floor') return minutesToHhmm(mins - remainder);
+  if (mode === 'ceil') return minutesToHhmm(mins + (30 - remainder));
+
+  // nearest
+  const down = mins - remainder;
+  const up = mins + (30 - remainder);
+  return (mins - down <= up - mins) ? minutesToHhmm(down) : minutesToHhmm(up);
+};
+
+/**
+ * Format a JS Date to HH:MM (24-hour) string.
+ */
+export const dateToHhmm = (d: Date): string => {
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+};
+
+/**
+ * Validate the pair (start, end):
+ * Both must be on 30-minute boundaries
+ * end > start (same-day, no midnight-crossing in this version)
+ * Duration must be a multiple of 30 minutes
+ *
+ * should return: { valid: boolean, error?: string }
+ */
+export const validateThirtyMinuteRange = (
+  startHhmm: string,
+  endHhmm: string
+): { valid: boolean; error?: string } => {
+  if (!isOnThirtyBoundary(startHhmm) || !isOnThirtyBoundary(endHhmm)) {
+    return { valid: false, error: 'Times must be on :00 or :30.' };
+  }
+
+  const s = hhmmToMinutes(startHhmm);
+  const e = hhmmToMinutes(endHhmm);
+
+  if (e <= s) {
+    return { valid: false, error: 'End time must be after start time (same day).' };
+  }
+
+  const duration = e - s;
+  if (duration % 30 !== 0) {
+    return { valid: false, error: 'Duration must be in 30-minute increments.' };
+  }
+
+  return { valid: true };
+};
+
 
 interface StudySession {
   id: string
@@ -23,7 +120,7 @@ interface StudySession {
   location: string
   created_at: string
 
-  
+
 
 
   //Joined data from profiles table
@@ -96,7 +193,7 @@ const scoreSession = (
   if (
     selectedStart &&
     selectedEnd &&
-    overlaps (session.start_time, session.end_time, selectedStart, selectedEnd)
+    overlaps(session.start_time, session.end_time, selectedStart, selectedEnd)
   ) {
     score += 1
   }
@@ -107,7 +204,7 @@ const scoreSession = (
  * Generate all 30-minute slots for a day.
  * Example slot: "14:00-14:30"
  */
-const generate30MinSlots = (): { start: string; end: string}[] => {
+const generate30MinSlots = (): { start: string; end: string }[] => {
   const slots: { start: string; end: string }[] = []
 
   for (let hour = 0; hour < 24; hour++) {
@@ -126,18 +223,18 @@ const generate30MinSlots = (): { start: string; end: string}[] => {
     })
   }
   return slots
-  }
+}
 
- /**
- * Groups sessions into 30-minute slots, 
- * applying priority scoring within each slot.
- *
- * @param filter - Time filter (today / next_24_hours / this_week)
- * @param selectedStart - Start of the user’s selected time window
- * @param selectedEnd - End of the user’s selected time window
- * @param selectedCourse - Optional: course to prioritize
- * @param selectedSubject - Optional: subject to prioritize
- */
+/**
+* Groups sessions into 30-minute slots, 
+* applying priority scoring within each slot.
+*
+* @param filter - Time filter (today / next_24_hours / this_week)
+* @param selectedStart - Start of the user’s selected time window
+* @param selectedEnd - End of the user’s selected time window
+* @param selectedCourse - Optional: course to prioritize
+* @param selectedSubject - Optional: subject to prioritize
+*/
 export async function getSessionsGroupedBySlot(
   filter: TimeFilter,
   selectedStart: string,
@@ -177,8 +274,8 @@ export async function getSessionsGroupedBySlot(
 
   //Step 3: Sort sessions in each slot by priority
   Object.keys(slots).forEach((slot) => {
-    slots[slot].sort((a, b) => 
-      scoreSession(b, selectedCourse, selectedSubject, selectedStart, selectedEnd) - 
+    slots[slot].sort((a, b) =>
+      scoreSession(b, selectedCourse, selectedSubject, selectedStart, selectedEnd) -
       scoreSession(a, selectedCourse, selectedSubject, selectedStart, selectedEnd)
     );
   });
@@ -200,6 +297,23 @@ export async function fetchAndFilterByTime(
   selectedCourse?: string,
   selectedSubject?: string
 ): Promise<StudySession[]> {
+
+  /* Helper for date
+   * Format a Date as "YYYY-MM-DD"
+   */
+  const toYMD = (d: Date) => d.toISOString().split('T')[0];
+
+  /**
+   * Get a date string offset by N days from today.
+   * EX: offsetYMD(1) -> tomorrow; offsetYMD(3) -> 3 days from now
+   */
+  const offsetYMD = (days: number) => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0); // normalize to midnight for clarity
+    d.setDate(d.getDate() + days);
+    return toYMD(d);
+  };
+
 
   /**
    * Step 1: Fetch data from the database.
@@ -230,36 +344,104 @@ export async function fetchAndFilterByTime(
  * we log it and just return an empty array.
  */
   // Step 1b: If database is empty or error occurs, use temporary hardcoded data
- let sessions: StudySession[] = []
+  let sessions: StudySession[] = []
 
-if (error || !data || data.length === 0) {
-  console.warn('Supabase returned empty or error. Using temporary test data.')
-  sessions = [
-    {
-      id: '1',
-      date: new Date().toISOString().split('T')[0], // today
-      start_time: '14:00',
-      end_time: '15:00',
-      subject: 'Computer Science',
-      course: 'CS101',
-      location: 'Library',
-      created_at: new Date().toISOString(),
-      profiles: { email: 'alice@school.edu', first_name: 'Alice', last_name: 'Smith' }
-    },
-    {
-      id: '2',
-      date: new Date().toISOString().split('T')[0],
-      start_time: '15:00',
-      end_time: '16:00',
-      subject: 'Math',
-      location: 'Rayzor Hall',
-      created_at: new Date().toISOString(),
-      profiles: { email: 'bob@school.edu', first_name: 'Bob', last_name: 'Jones' }
-    }
-  ]
-} else {
-  sessions = data as unknown as StudySession[]
-}
+  if (error || !data || data.length === 0) {
+    console.warn('Supabase returned empty or error. Using temporary test data.')
+
+
+    const today = toYMD(new Date());
+    const tomorrow = offsetYMD(1);
+    const plus3 = offsetYMD(3);
+
+
+    sessions = [
+      {
+        id: '1',
+        date: today, // today
+        start_time: '14:00', // 2:00 PM today
+        end_time: '15:00',
+        subject: 'Computer Science',
+        course: 'CS2003',
+        location: 'McFarlin Library',
+        created_at: new Date().toISOString(),
+        profiles: { email: 'alice@utulsa.edu', first_name: 'Alice', last_name: 'Smith' }
+      },
+      {
+        id: '2',
+        date: today,
+        start_time: '20:00', // 8:00 PM today
+        end_time: '21:00',
+        subject: 'Math',
+        location: 'Keplinger Hall',
+        created_at: new Date().toISOString(),
+        profiles: { email: 'bob@utulsa.edu', first_name: 'Bob', last_name: 'Jones' }
+      },
+      {
+
+        id: '3',
+        date: tomorrow,
+        start_time: '08:00', //8:00 AM tomorrow
+        end_time: '09:30',
+        subject: 'Biology',
+        course: 'BIOL1603',
+        location: 'Oliphant Hall',
+        created_at: new Date().toISOString(),
+        profiles: { email: 'cory@utulsa.edu', first_name: 'Cory', last_name: 'Lee' },
+      },
+
+      {
+        id: '4',
+        date: tomorrow,
+        start_time: '19:00', // 7:00 PM tomorrow
+        end_time: '20:30',
+        subject: 'Computer Science',
+        course: 'CS2123',
+        location: 'Library',
+        created_at: new Date().toISOString(),
+        profiles: { email: 'dana@utulsa.edu', first_name: 'Dana', last_name: 'Kim' },
+      },
+
+      {
+        id: '5',
+        date: plus3,
+        start_time: '13:30', // 1:30 PM in 3 days
+        end_time: '15:00',
+        subject: 'Chemistry',
+        course: 'CHEM3013',
+        location: 'Student Union',
+        created_at: new Date().toISOString(),
+        profiles: { email: 'erin@utulsa.edu', first_name: 'Erin', last_name: 'Johnson' },
+      },
+      {
+
+        id: '6',
+        date: plus3,
+        start_time: '20:00', // 8:00 PM in 3 days
+        end_time: '21:30',
+        subject: 'Math',
+        course: 'MATH2024',
+        location: 'Keplinger Hall',
+        created_at: new Date().toISOString(),
+        profiles: { email: 'frank@utulsa.edu', first_name: 'Frank', last_name: 'Olsen' },
+      },
+
+      {
+        id: '7', // Same time and subject as id 1. Different course.
+        date: today,
+        start_time: '14:00',
+        end_time: '15:00',
+        subject: 'Computer Science',
+        course: 'CS2123',
+        location: 'Keplinger Hall',
+        created_at: new Date().toISOString(),
+        profiles: { email: 'katy@utulsa.edu', first_name: 'Katy', last_name: 'Jones' },
+      },
+    ];
+
+  } else {
+    sessions = data as unknown as StudySession[]
+  }
 
   /**
    * Current date and time used for comparison
@@ -321,35 +503,44 @@ if (error || !data || data.length === 0) {
   })
 
   //Apply priority scoring and sort
- //Filter course if provided
-let filtered = timeFiltered;
+  //Filter course if provided
+  let filtered = timeFiltered;
 
-if (selectedCourse) {
-  filtered = filtered.filter(
-    (s) => s.course?.toLowerCase() === selectedCourse.toLowerCase()
-  );
-}
+  if (selectedCourse) {
+    filtered = filtered.filter(
+      (s) => s.course?.toLowerCase() === selectedCourse.toLowerCase()
+    );
+  }
 
-//Filter subject (required)
-if (selectedSubject) {
-  filtered = filtered.filter(
-  (s) => s.subject?.toLowerCase() === selectedSubject.toLowerCase()
-);
-}
+  //Filter subject (required)
+  if (selectedSubject) {
+    filtered = filtered.filter(
+      (s) => s.subject?.toLowerCase() === selectedSubject.toLowerCase()
+    );
+  }
 
-//Now apply scoring only for sorting
-const scoredSessions = filtered
-  .map((session) => ({
-    ...session,
-    score: scoreSession(
-      session,
-      selectedCourse,
-      selectedSubject,
-      selectedStart,
-      selectedEnd
-    ),
-  }))
-  .sort((a, b) => b.score - a.score);
+
+  //CLOCK-TIME-OF-DAY filtering
+  // Keep only sessions whose time-of-day overlaps the selected window
+  if (selectedStart && selectedEnd) {
+    filtered = filtered.filter((s) =>
+      overlaps(s.start_time, s.end_time, selectedStart, selectedEnd)
+    );
+  }
+
+  //Now apply scoring only for sorting
+  const scoredSessions = filtered
+    .map((session) => ({
+      ...session,
+      score: scoreSession(
+        session,
+        selectedCourse,
+        selectedSubject,
+        selectedStart,
+        selectedEnd
+      ),
+    }))
+    .sort((a, b) => b.score - a.score);
 
   return scoredSessions
 }
