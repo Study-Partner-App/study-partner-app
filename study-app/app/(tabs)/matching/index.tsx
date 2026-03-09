@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { supabase } from "../../../lib/supabase";
 import MatchingScreen from "./_MatchingScreen";
-import { User } from "./_ProfileCard";
+import { User } from "./_utils";
 
 const PAGE_SIZE = 10;
 
@@ -13,6 +13,8 @@ export default function MatchingIndex() {
     const [fetchLoading, setFetchingLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const [page, setPage] = useState(0);
+    // Prevent Simultaneous Fetches
+    const fetchingRef = useRef(false);
 
     useEffect(() => {
         const loadUser = async () => {
@@ -27,8 +29,9 @@ export default function MatchingIndex() {
     }, []);
 
     const fetchMatches = async () => {
-        if(!currentUser?.id || fetchLoading || !hasMore) return;
+        if(!currentUser?.id || fetchLoading || !hasMore || fetchingRef.current) return;
         
+        fetchingRef.current = true;
         setFetchingLoading(true);
         const { data, error } = await supabase.rpc("get_ranked_matches", {
             current_user_id: currentUser.id,
