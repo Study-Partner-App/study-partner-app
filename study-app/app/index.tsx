@@ -51,10 +51,10 @@ export default function IndexPage() {
     return (
         <View style={styles.page}>
             <Text style={styles.title}>Landing Page</Text>
-            <View style={styles.button}>
+            <View style={styles.buttonContainer}>
                 <Button title={buttonTitle} onPress={buttonAction} />
             </View>
-            <View style={styles.button}>
+            <View style={styles.buttonContainer}>
                 <Button title='Study Sessions' onPress={handleStudyNav}/>
             </View>
         </View>

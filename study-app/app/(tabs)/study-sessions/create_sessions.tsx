@@ -1,4 +1,4 @@
-import { View, Text, Button } from 'react-native';
+import { View, Text, Button, TextInput } from 'react-native';
 import { styles } from '@/lib/styles';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
@@ -76,13 +76,109 @@ const CreateSessionsPage = () => {
             }
         }
 
-        // TODO: If all required fields are present and the formatting is correct, we can submit the session info to supabase, as long as the user is signed in.
+        // If all required fields are present and the formatting is correct, we can submit the session info to supabase, as long as the user is signed in.
+
+        const {error: getUserError, data: user} = await supabase.auth.getUserIdentities(); // Get the user's id from the profiles table to associate with the study session.
+
+        // This particular check should never actually be hit, since the option to create a study session should only be available to signed in users, 
+        // but this is just an extra precaution to ensure that only signed in users can create study sessions.
+        if (getUserError) {
+            alert('You must be signed in to create a study session.');
+            return;
+        }
+
+        const { error: insertSessionError } = await supabase.from('study_sessions').insert({
+            user_id: user.identities[0].id, // Associate the study session with the user's id.
+            start_time: sessionInfo.startTime,
+            end_time: sessionInfo.endTime,
+            date: sessionInfo.date,
+            subject: sessionInfo.subject,
+            location: sessionInfo.location,
+            description: sessionInfo.description,
+            course: sessionInfo.course,
+        });
+
+        if (insertSessionError) {
+            alert('Error submitting study session.');
+            return;
+        }
+
+        // This particular check should never actually be hit, since the option to create a study session should only be available to signed in users, 
+        // but this is just an extra precaution to ensure that only signed in users can create study sessions.
+        if (!user) {
+            alert('You must be signed in to create a study session.');
+            return;
+        }
         
     }
 
+    // TODO: For the announced and maxParticipants fields, I will need to implement some different logic to handle the fact that these values will not just be simple strings, but for
+    // now, I will just leave them out of the form until I implement that logic.
     return (
         <View style={styles.page}>
             <Text style={styles.title}>Create Study Session</Text>
+
+            <View style={styles.inputContainer}>
+                <TextInput 
+                    style={styles.input}
+                    placeholder="Start Time (HH:MM)"
+                    placeholderTextColor={styles.input.color}
+                    value={sessionInfo.startTime}
+                    onChangeText={(value) => handleChange('startTime', value)}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="End Time (HH:MM)"
+                    placeholderTextColor={styles.input.color}
+                    value={sessionInfo.endTime}
+                    onChangeText={(value) => handleChange('endTime', value)}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Date (YYYY-MM-DD)"
+                    placeholderTextColor={styles.input.color}
+                    value={sessionInfo.date}
+                    onChangeText={(value) => handleChange('date', value)}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Subject"
+                    placeholderTextColor={styles.input.color}
+                    value={sessionInfo.subject}
+                    onChangeText={(value) => handleChange('subject', value)}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Location"
+                    placeholderTextColor={styles.input.color}
+                    value={sessionInfo.location}
+                    onChangeText={(value) => handleChange('location', value)}
+                />
+
+                <TextInput
+                    style={styles.input}
+                    placeholder="Description (Optional)"
+                    placeholderTextColor={styles.input.color}
+                    value={sessionInfo.description}
+                    onChangeText={(value) => handleChange('description', value)}
+                />
+                <TextInput 
+                    style={styles.input}
+                    placeholder="Course (Optional)"
+                    placeholderTextColor={styles.input.color}
+                    value={sessionInfo.course}
+                    onChangeText={(value) => handleChange('course', value)}
+                />
+
+            </View>
+
+            <View style={styles.buttonContainer}>
+                <View style={styles.buttonWrapper}>
+                    <Button title="Submit" onPress={handleSubmit} />
+                </View>
+            </View>
+
+
         </View>
     );
 };

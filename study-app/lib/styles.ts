@@ -8,6 +8,7 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingHorizontal: 24,
         paddingTop: 16,
+        backgroundColor: "#F4F5F7",
     },
 
     title: {
@@ -167,27 +168,38 @@ const styles = StyleSheet.create({
         marginTop: -2,
     },
 
+    inputContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '50%',
+        height: '30%',
+    },
+
     input: {
-        height: 40,
-        width: '60%',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        height: 20,
+        width: '100%',
         borderColor: 'gray',
         borderWidth: 1,
         marginBottom: 10,
-        paddingHorizontal: 10,
         backgroundColor: '#ffffff',
         color: '#0000004b',
     },
 
-    buttonContainer:{
+    buttonContainer: {
+        flex: 1, // Ensures the main container takes all available space
         justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 10,
-        marginBottom: 10,
-        width: '20%',
-        height: 40,
-        backgroundColor: '#1677FF',
-        borderRadius: 5,
-    }
+        paddingHorizontal: 20, // Add some padding so the button isn't edge-to-edge
+        paddingVertical: 10, // Add vertical padding for spacing between buttons
+        width: '20%', // Make the container take the only 20% the width of its parent
+    },
+
+    buttonWrapper: {
+        width: '100%', // Makes the wrapper take the full width of its parent (container padding considered)
+        // You can also add margin or other styles here
+    },
 
 });
 
