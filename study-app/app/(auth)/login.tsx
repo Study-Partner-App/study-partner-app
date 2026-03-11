@@ -42,24 +42,26 @@ const LoginPage = () => {
     }
 
     return (
-        <View style={styles.container}>
+        <View style={styles.page}>
             <TextInput 
                 style={styles.input}
                 placeholder="Email"
-                placeholderTextColor={'#0000004b'}
+                placeholderTextColor={styles.input.color}
                 value={email}
                 onChangeText={handleEmail}
             />
             <TextInput
                 style={styles.input}
                 placeholder="Password"
-                placeholderTextColor={'#0000004b'}
+                placeholderTextColor={styles.input.color}
                 value={password}
                 onChangeText={handlePassword}
                 secureTextEntry
             />
-            <Button title="Submit" onPress={handleSubmit} />
-            <Button title="Create Account" onPress={handleCreateAccount} />
+            <View style={styles.buttonContainer}>
+                <Button title="Submit" onPress={handleSubmit} />
+                <Button title="Create Account" onPress={handleCreateAccount} />
+            </View>
         </View>
     )   
 };

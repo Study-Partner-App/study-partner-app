@@ -117,7 +117,7 @@ const SignUpPage = () => {
             <TextInput
                 style={styles.input}
                 placeholder="Password"
-                placeholderTextColor={'#0000004b'}
+                placeholderTextColor={styles.input.color}
                 value={password}
                 onChangeText={handlePassword}
                 secureTextEntry
@@ -125,7 +125,7 @@ const SignUpPage = () => {
             <TextInput
                 style={styles.input}
                 placeholder="Confirm Password"
-                placeholderTextColor={'#0000004b'}
+                placeholderTextColor={styles.input.color}
                 value={confirmPassword}
                 onChangeText={handleConfirmPassword}
                 secureTextEntry
@@ -133,32 +133,34 @@ const SignUpPage = () => {
             <TextInput
                 style={styles.input}
                 placeholder="University"
-                placeholderTextColor={'#0000004b'}
+                placeholderTextColor={styles.input.color}
                 value={university}
                 onChangeText={handleUniversity}
             />
             <TextInput
                 style={styles.input}
                 placeholder="Major"
-                placeholderTextColor={'#0000004b'}
+                placeholderTextColor={styles.input.color}
                 value={major}
                 onChangeText={handleMajor}
             />
             <TextInput
                 style={styles.input}
                 placeholder="(Optional) First Name"
-                placeholderTextColor={'#0000004b'}
+                placeholderTextColor={styles.input.color}
                 value={firstName}
                 onChangeText={handleFirstName}
             />
             <TextInput
                 style={styles.input}
                 placeholder="(Optional) Last Name"
-                placeholderTextColor={'#0000004b'}
+                placeholderTextColor={styles.input.color}
                 value={lastName}
                 onChangeText={handleLastName}
             />
-            <Button title="Submit" onPress={handleSubmit} />
+            <View style={styles.buttonContainer}>
+                <Button title="Submit" onPress={handleSubmit} />
+            </View>
         </View>
     )   
 };

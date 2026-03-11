@@ -13,7 +13,7 @@ export default function IndexPage() {
 
     return (
         <View style={styles.page}>
-            <View style={styles.button}>
+            <View style={styles.buttonContainer}>
                 <Button title='Create Study Session' onPress={handleCreate} />
             </View>
             
