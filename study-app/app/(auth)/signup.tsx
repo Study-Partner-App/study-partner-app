@@ -106,11 +106,11 @@ const SignUpPage = () => {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={styles.page}>
             <TextInput 
                 style={styles.input}
                 placeholder="Email"
-                placeholderTextColor={'#0000004b'}
+                placeholderTextColor={styles.input.color}
                 value={email}
                 onChangeText={handleEmail}
             />

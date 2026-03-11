@@ -49,10 +49,14 @@ export default function IndexPage() {
     const buttonAction = loginFlag ? handleSignOut : handleLogin;
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.text}>Landing Page</Text>
-            <Button title={buttonTitle} onPress={buttonAction} />
-            <Button title='Study Sessions' onPress={handleStudyNav}/>
+        <View style={styles.page}>
+            <Text style={styles.title}>Landing Page</Text>
+            <View style={styles.button}>
+                <Button title={buttonTitle} onPress={buttonAction} />
+            </View>
+            <View style={styles.button}>
+                <Button title='Study Sessions' onPress={handleStudyNav}/>
+            </View>
         </View>
     );
 }

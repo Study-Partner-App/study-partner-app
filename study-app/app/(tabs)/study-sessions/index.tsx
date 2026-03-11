@@ -12,8 +12,11 @@ export default function IndexPage() {
     }
 
     return (
-        <View style={styles.container}>
-            <Button title='Create Study Session' onPress={handleCreate} />
+        <View style={styles.page}>
+            <View style={styles.button}>
+                <Button title='Create Study Session' onPress={handleCreate} />
+            </View>
+            
         </View>
     );
 }

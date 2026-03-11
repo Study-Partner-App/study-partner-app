@@ -3,7 +3,6 @@ import { styles } from '@/lib/styles';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { useState } from 'react';
-import { Timestamp } from 'react-native-reanimated/lib/typescript/commonTypes';
 
 interface StudySession {
     // Required fields
@@ -78,11 +77,12 @@ const CreateSessionsPage = () => {
         }
 
         // TODO: If all required fields are present and the formatting is correct, we can submit the session info to supabase, as long as the user is signed in.
+        
     }
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.text}>This is where you create study sessions.</Text>
+        <View style={styles.page}>
+            <Text style={styles.title}>Create Study Session</Text>
         </View>
     );
 };
