@@ -40,7 +40,7 @@ export default function IndexPage() {
     };
 
     const handleStudyNav = () => {
-        router.navigate('./(tabs)/study-sessions/');
+        router.push('./(tabs)/study-sessions/');
     }
 
     // Determine whether the user is signed in, and display the appropriate button.
@@ -51,11 +51,14 @@ export default function IndexPage() {
     return (
         <View style={styles.page}>
             <Text style={styles.title}>Landing Page</Text>
+
             <View style={styles.buttonContainer}>
-                <Button title={buttonTitle} onPress={buttonAction} />
-            </View>
-            <View style={styles.buttonContainer}>
-                <Button title='Study Sessions' onPress={handleStudyNav}/>
+                <View style={styles.buttonWrapper}>
+                    <Button title={buttonTitle} onPress={buttonAction} />
+                </View>
+                <View style={styles.buttonWrapper}>
+                    <Button title='Study Sessions' onPress={handleStudyNav}/>
+                </View>
             </View>
         </View>
     );

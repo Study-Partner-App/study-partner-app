@@ -79,9 +79,9 @@ const CreateSessionsPage = () => {
         // If all required fields are present and the formatting is correct, we can submit the session info to supabase, as long as the user is signed in.
 
         const {error: getUserError, data: user} = await supabase.auth.getUserIdentities(); // Get the user's id from the profiles table to associate with the study session.
-
+        
         // This particular check should never actually be hit, since the option to create a study session should only be available to signed in users, 
-        // but this is just an extra precaution to ensure that only signed in users can create study sessions.
+        // but this is just an extra precaution while we are doing testing to ensure that only signed in users can create study sessions.
         if (getUserError) {
             alert('You must be signed in to create a study session.');
             return;
@@ -103,12 +103,9 @@ const CreateSessionsPage = () => {
             return;
         }
 
-        // This particular check should never actually be hit, since the option to create a study session should only be available to signed in users, 
-        // but this is just an extra precaution to ensure that only signed in users can create study sessions.
-        if (!user) {
-            alert('You must be signed in to create a study session.');
-            return;
-        }
+        // If the submission is successful, send the user back to the study sessions page to see their newly created session.
+        // router.back(); //The router is acting unpredictably and I don't have the time to fix it right now, but ideally, this would just send the user back to the previous page,
+        // which is the study sessions index page.
         
     }
 
@@ -177,8 +174,6 @@ const CreateSessionsPage = () => {
                     <Button title="Submit" onPress={handleSubmit} />
                 </View>
             </View>
-
-
         </View>
     );
 };

@@ -59,10 +59,12 @@ const LoginPage = () => {
                 secureTextEntry
             />
             <View style={styles.buttonContainer}>
-                <Button title="Submit" onPress={handleSubmit} />
-            </View>
-            <View style={styles.buttonContainer}>
-                <Button title="Create Account" onPress={handleCreateAccount} />
+                <View style={styles.buttonWrapper}>
+                    <Button title="Submit" onPress={handleSubmit} />
+                </View>
+                <View style={styles.buttonWrapper}>
+                    <Button title="Create Account" onPress={handleCreateAccount} />
+                </View>
             </View>
         </View>
     )   

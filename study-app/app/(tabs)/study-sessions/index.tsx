@@ -8,15 +8,13 @@ export default function IndexPage() {
     const router = useRouter();
     
     const handleCreate = () =>{
-        router.push('./study-sessions/create_sessions');
+        router.push('/study-sessions/create_sessions');
     }
 
     return (
         <View style={styles.page}>
-            <View style={styles.buttonContainer}>
-                <Button title='Create Study Session' onPress={handleCreate} />
-            </View>
-            
+            <Text style={styles.title}>Study Sessions</Text>
+            <Text>Here is where you view your study sessions.</Text>       
         </View>
     );
 }

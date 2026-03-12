@@ -159,7 +159,9 @@ const SignUpPage = () => {
                 onChangeText={handleLastName}
             />
             <View style={styles.buttonContainer}>
-                <Button title="Submit" onPress={handleSubmit} />
+                <View style={styles.buttonWrapper}>
+                    <Button title="Submit" onPress={handleSubmit} />
+                </View>
             </View>
         </View>
     )   

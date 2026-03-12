@@ -191,13 +191,15 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flex: 1, // Ensures the main container takes all available space
         justifyContent: 'center',
-        paddingHorizontal: 20, // Add some padding so the button isn't edge-to-edge
-        paddingVertical: 10, // Add vertical padding for spacing between buttons
+        paddingHorizontal: 20,
+        paddingVertical: 10,
         width: '20%', // Make the container take the only 20% the width of its parent
     },
 
     buttonWrapper: {
         width: '100%', // Makes the wrapper take the full width of its parent (container padding considered)
+        paddingVertical: 5, // Add vertical padding for spacing between buttons
+        paddingHorizontal: 10, // Add horizontal padding to ensure buttons aren't edge-to-edge within the wrapper
         // You can also add margin or other styles here
     },
 
