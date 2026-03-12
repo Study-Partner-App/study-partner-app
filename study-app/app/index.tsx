@@ -17,7 +17,7 @@ export default function IndexPage() {
             setLoginFlag(false);
         } else {
             setLoginFlag(true);
-        }})
+        }});
 
     //A quick function to handle behavior for pressing login.
     const handleLogin = () => {
@@ -29,7 +29,7 @@ export default function IndexPage() {
     // For now, it will just be a placeholder.
     const handleProfile = () => {
         //router.push('');
-    }
+    };
 
     //A function for handling the sign out behaviour.
     const handleSignOut = async () => {
@@ -37,6 +37,10 @@ export default function IndexPage() {
 
         //Now, reset the navigation to restart the auth.
         router.dismissTo('/')
+    };
+
+    const handleStudyNav = () => {
+        router.push('./(tabs)/study-sessions/');
     }
 
     // Determine whether the user is signed in, and display the appropriate button.
@@ -45,9 +49,17 @@ export default function IndexPage() {
     const buttonAction = loginFlag ? handleSignOut : handleLogin;
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.text}>Landing Page</Text>
-            <Button title={buttonTitle} onPress={buttonAction} />
+        <View style={styles.page}>
+            <Text style={styles.title}>Landing Page</Text>
+
+            <View style={styles.buttonContainer}>
+                <View style={styles.buttonWrapper}>
+                    <Button title={buttonTitle} onPress={buttonAction} />
+                </View>
+                <View style={styles.buttonWrapper}>
+                    <Button title='Study Sessions' onPress={handleStudyNav}/>
+                </View>
+            </View>
         </View>
     );
 }

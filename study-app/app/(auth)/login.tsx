@@ -7,7 +7,7 @@ import { styles } from '@/lib/styles';
 const LoginPage = () => {
     const router = useRouter();
 
-    //These following is a list of states to hold the user's login info.
+    //The following is a list of states to hold the user's login info.
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -42,24 +42,30 @@ const LoginPage = () => {
     }
 
     return (
-        <View style={styles.container}>
+        <View style={styles.page}>
             <TextInput 
                 style={styles.input}
                 placeholder="Email"
-                placeholderTextColor={'#0000004b'}
+                placeholderTextColor={styles.input.color}
                 value={email}
                 onChangeText={handleEmail}
             />
             <TextInput
                 style={styles.input}
                 placeholder="Password"
-                placeholderTextColor={'#0000004b'}
+                placeholderTextColor={styles.input.color}
                 value={password}
                 onChangeText={handlePassword}
                 secureTextEntry
             />
-            <Button title="Submit" onPress={handleSubmit} />
-            <Button title="Create Account" onPress={handleCreateAccount} />
+            <View style={styles.buttonContainer}>
+                <View style={styles.buttonWrapper}>
+                    <Button title="Submit" onPress={handleSubmit} />
+                </View>
+                <View style={styles.buttonWrapper}>
+                    <Button title="Create Account" onPress={handleCreateAccount} />
+                </View>
+            </View>
         </View>
     )   
 };

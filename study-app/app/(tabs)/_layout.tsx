@@ -16,9 +16,12 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
       }}>
+
+      
       <Tabs.Screen
         name="index"
         options={{
+          headerTitle: 'Home',
           title: 'Home',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
@@ -28,6 +31,24 @@ export default function TabLayout() {
         options={{
           title: 'Explore',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="study-sessions/index"
+        options={{
+          headerTitle: 'Study Sessions',
+          title: 'Sessions',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="book.fill" color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="study-sessions/create_sessions"
+        options={{
+          headerTitle: 'Create Study Session',
+          title: 'Create',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="plus.circle.fill" color={color} />,
         }}
       />
     </Tabs>
