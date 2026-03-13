@@ -1,4 +1,5 @@
 import React from 'react';
+import { View, TextInput, Text } from 'react-native';
 
 
 /** 
@@ -33,6 +34,7 @@ export default function TimePicker({
     const h = Number(hStr);
     const m = Number(mStr);
 
+    if(Number.isNaN(h) || Number.isNaN(m)) return hhmm;
     //Already aligned
     if (m === 0 || m === 30) return hhmm;
 
@@ -44,33 +46,40 @@ export default function TimePicker({
     return `${String(nextHour).padStart(2, '0')}:00`;
   };
 
+  const handleChange = (text: string) => {
+    // Clean input to only allow numbers and colon, enforce HH:MM format
+    let cleaned = text.replace(/[^0-9:]/g, "");
+    //Enforce HH:MM shape while typing
+    if(cleaned.length === 2 && !cleaned.includes(":")) {
+      cleaned = cleaned + ":";
+    }
+    // Prevent input longer than HH:MM
+    if(cleaned.length > 5) return;
+    // Snap to nearest 30 minutes if enabled
+    const next = snap ? snapToThirty(cleaned) : cleaned;
+    onChange(next);
+  }
+
   return (
-    <div style={{ marginBottom: 12 }}>
+    <View style={{ marginBottom: 12 }}>
       {label && (
-        <label htmlFor={id} style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>
-          {label}
-          {required ? ' *' : ''}
-        </label>
+        <Text style={{ fontWeight: "600", marginBottom: 6}}>
+          {label} {required ? ' *' : ''}
+        </Text>
       )}
-      <input
-        id={id}
-        type="time"
-        step={1800} //30 minutes in seconds
+      <TextInput
         value={value}
-        min={min}
-        max={max}
-        onChange={(e) => {
-          const raw = e.target.value; //HH:MM
-          const next = snap ? snapToThirty(raw) : raw;
-          onChange(next);
-        }}
+        placeholder="HH:MM"
+        keyboardType="numeric"
+        onChangeText={handleChange}
         style={{
           padding: 8,
           borderRadius: 8,
-          border: '1px solid #ccc',
+          borderWidth: 1,
+          borderColor: "#ccc",
           backgroundColor: '#fff'
         }}
       />
-    </div>
+    </View>
   );
 }
