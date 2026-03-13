@@ -240,31 +240,93 @@ export default function Index() {
     loadSessions();
   }, []);
 
+  //-------------------- Helpers for making sure end times don't break 30-minute logic--------------------
+  //Time math helpers (24h circular clock)
+const MAX_MINUTES = 30;
+
+const toMinutes = (hhmm?: string | null) => {
+  if (!hhmm) return null;
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
+};
+
+const toHHMM = (mins: number) => {
+  // Normalize to [0, 1440)
+  const t = ((mins % 1440) + 1440) % 1440;
+  const h = String(Math.floor(t / 60)).padStart(2, '0');
+  const m = String(t % 60).padStart(2, '0');
+  return `${h}:${m}`;
+};
+
+// Forward difference from a to b (in minutes) on a 24h clock
+const forwardDiff = (a: number, b: number) => ((b - a + 1440) % 1440);
+
+
   // -------------------- Handlers --------------------
 
   const onStartChange = (hhmm: string) => {
-    //Ensure 30-min alignment (should already be aligned by the picker)
-    const snapped = isOnThirtyBoundary(hhmm) ? hhmm : snapToThirty(hhmm, 'nearest');
-    setStartTime(snapped);
+  // Snap to 30-min boundary if needed
+  const snapped = isOnThirtyBoundary(hhmm) ? hhmm : snapToThirty(hhmm, 'nearest');
+  const s = toMinutes(snapped);
+  const e = toMinutes(endTime);
 
-    // If end <= start, auto-adjust end to start + 30 to keep valid default
-    const [sh, sm] = snapped.split(':').map(Number);
-    const startMins = sh * 60 + sm;
-    const endMins = endTime.split(':').map(Number).reduce((a, b, i) => i ? a + b : a * 60 + b); //quick parse
+  setStartTime(snapped);
 
-    if (endMins <= startMins) {
-      const next = startMins + 30; //fixed 30-min session minimum
-      const nextH = String(Math.floor(next / 60) % 24).padStart(2, '0');
-      const nextM = String(next % 60).padStart(2, '0');
-      setEndTime(`${nextH}:${nextM}`);
+  // If no end yet, prefill to start + 30
+  if (e == null && s != null) {
+    const nextEnd = toHHMM(s + MAX_MINUTES);
+    setEndTime(nextEnd);
+    setTimeError(null);
+    return;
+  }
+
+  if (s != null && e != null) {
+    const diff = forwardDiff(s, e);
+
+    // If end is same as start or more than 30 minutes after, clamp end to start + 30
+    if (diff === 0 || diff > MAX_MINUTES) {
+      const clampedEnd = toHHMM(s + MAX_MINUTES);
+      setEndTime(clampedEnd);
+      setTimeError('End time adjusted to be within 30 minutes of start.');
+    } else {
+      setTimeError(null);
     }
-  };
+  }
+};
 
-  const onEndChange = (hhmm: string) => {
-    //Align end time
-    const snapped = isOnThirtyBoundary(hhmm) ? hhmm : snapToThirty(hhmm, 'nearest');
+const onEndChange = (hhmm: string) => {
+  // Snap to 30-min boundary if needed
+  const snapped = isOnThirtyBoundary(hhmm) ? hhmm : snapToThirty(hhmm, 'nearest');
+  const e = toMinutes(snapped);
+  const s = toMinutes(startTime);
+
+  // If end picked first, set start = end - 30
+  if (s == null && e != null) {
+    const newStart = toHHMM(e - MAX_MINUTES);
+    setStartTime(newStart);
     setEndTime(snapped);
-  };
+    setTimeError('Start time set to 30 minutes before end.');
+    return;
+  }
+
+  if (s != null && e != null) {
+    const diff = forwardDiff(s, e);
+
+    // If end is same as start or more than 30 minutes after, clamp start to end - 30
+    if (diff === 0 || diff > MAX_MINUTES) {
+      const clampedStart = toHHMM(e - MAX_MINUTES);
+      setStartTime(clampedStart);
+      setEndTime(snapped);
+      setTimeError('Start time adjusted to keep session ≤ 30 minutes.');
+    } else {
+      setEndTime(snapped);
+      setTimeError(null);
+    }
+  } else {
+    // Fallback when e is null (unlikely since we're in onEndChange)
+    setEndTime(snapped);
+  }
+};
 
 
 

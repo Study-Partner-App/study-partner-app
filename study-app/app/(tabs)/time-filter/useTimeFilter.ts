@@ -359,8 +359,8 @@ export async function fetchAndFilterByTime(
       {
         id: '1',
         date: today, // today
-        start_time: '14:00', // 2:00 PM today
-        end_time: '15:00',
+        start_time: '15:00', // 2:00 PM today
+        end_time: '17:00',
         subject: 'Computer Science',
         course: 'CS2003',
         location: 'McFarlin Library',
@@ -429,8 +429,8 @@ export async function fetchAndFilterByTime(
       {
         id: '7', // Same time and subject as id 1. Different course.
         date: today,
-        start_time: '14:00',
-        end_time: '15:00',
+        start_time: '15:00',
+        end_time: '17:00',
         subject: 'Computer Science',
         course: 'CS2123',
         location: 'Keplinger Hall',
