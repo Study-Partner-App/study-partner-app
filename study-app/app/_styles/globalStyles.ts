@@ -6,7 +6,7 @@ export const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 12,
         backgroundColor: "#fff",
-        marginBottom: 16,
+        marginBottom: 2,
         marginTop: 16,
         marginHorizontal: 16,
         elevation: 2,
@@ -78,7 +78,7 @@ export const styles = StyleSheet.create({
         shadowColor: "#000",
         shadowOpacity: 0.1,
         shadowRadius: 5,
-        elevation: 3,
+        elevation: 6,
     },
 
     hs_title: {
@@ -86,14 +86,14 @@ export const styles = StyleSheet.create({
         alignItems: "center",
         gap: 6,
         marginBottom: 10,
-        fontWeight: "600",
-        fontSize: 18,
+        fontWeight: "900",
+        fontSize: 22,
     },
 
     hs_matchName: {
         fontSize: 16,
-        fontWeight: "600",
-        color: "#30678f",
+        fontWeight: "700",
+        color: "#0b2b9d",
     },
 
     hs_matchMajor: {
@@ -133,6 +133,57 @@ export const styles = StyleSheet.create({
 
     hs_matchRow: {
         marginTop: 10
+    },
+
+    loginButton: {
+      paddingVertical: 14,
+      borderRadius: 12,
+      alignItems: "center",  
+      marginBottom: 12,
+    },
+
+    loginButtonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+
+    featureTitle: {
+        fontSize: 24,
+        fontWeight: "800",
+        textAlign: "center",
+        marginBottom: 24,
+        color: "#111827",
+    },
+
+    featureGrid: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "space-between",
+    },
+
+    featureCard: {
+        height: 120,
+        borderRadius: 16,
+        backgroundColor: "#ffffff",
+        justifyContent: "center",
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOpacity: 0.08,
+        shadowRadius: 6,
+        shadowOffset: {width: 0, height: 3},
+        elevation: 4,
+    }, 
+
+    featureIcon: {
+        fontSize: 28,
+        marginBottom: 6,
+    },
+
+    featureText: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#111827",
     },
 
 })

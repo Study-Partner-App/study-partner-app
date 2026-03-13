@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { View, Text, Pressable, FlatList } from "react-native";
-import { supabase } from "../../../lib/supabase";
+import { supabase } from "../../lib/supabase";
 import { FriendRequest } from "../matching/_utils";
 
 export default function FriendRequestsPage() {

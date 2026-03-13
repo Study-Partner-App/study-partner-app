@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import {View, Text, Pressable, ScrollView, Button} from "react-native";
 import { router } from "expo-router";
 import { styles } from "@/app/_styles/globalStyles";
-import { User } from "./matching/_utils";
+import { User } from "../matching/_utils";
 import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { theme } from "@/lib/theme";
 
 export default function Home() {
 
@@ -56,7 +57,7 @@ export default function Home() {
     return(
       
       <LinearGradient
-        colors={['#b8ebf4', '#e5e7ed']}
+        colors={theme.gradients.background}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{ flex: 1 }}
@@ -65,7 +66,7 @@ export default function Home() {
           {/* Friend Requests */}
           <Pressable onPress={() => router.push('/requests')}>
             <LinearGradient
-              colors={["#83bbe4", "#efccde"]}
+              colors={["#83bbe4", "#f6eff3"]}
               start={{ x:0, y:0 }}
               end={{ x:1, y: 1 }}
               style={[styles.hs_topCard]}
@@ -81,7 +82,7 @@ export default function Home() {
           {/* Public Sessions */}
           <Pressable onPress={() => router.push('/announcement')}>
             <LinearGradient
-              colors={["#67b3e9", "#efccde"]}
+              colors={["#67b3e9", "#f6eff3"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={[styles.hs_card]}
@@ -97,13 +98,13 @@ export default function Home() {
         {/* Matches Preview - Only show if there are matches */}
         <Pressable onPress={() => router.push("/matching")}>
           <LinearGradient
-            colors={["#75bef3", "#efccde"]}
+            colors={["#75bef3", "#f6eff3"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[styles.hs_card]}
           >
             <Text style={styles.hs_title}>
-              <Ionicons name="flame" size={24} color="#ce9872"/> Top Matches
+              <Ionicons name="flame" size={24} color="#d66b1e"/> Top Matches
             </Text>
           {matches.map((match, i) => (
             <View key={match.id} style={[styles.hs_matchRow, i === 3 && styles.hs_fade]}
@@ -115,7 +116,20 @@ export default function Home() {
         </LinearGradient>
         </Pressable>
 
-        <Button title="Log Out" onPress={handleLogout} />
+
+        <View style={{ marginTop: 10 }}>
+                <Pressable onPress={handleLogout}>
+                    <LinearGradient
+                        colors={theme.gradients.loginButton}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.loginButton}
+                    >    
+                        <Text style={styles.loginButtonText}>Log Out</Text>
+                    </LinearGradient>
+                </Pressable>
+            </View>
+
       </ScrollView>
     </LinearGradient>
   )

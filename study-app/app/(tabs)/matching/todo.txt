@@ -1,3 +1,0 @@
-- In rank_matches in supabase:
-    - and fr.status in ('pending', 'accepted')
-    - May want to added 'rejected'

@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { View, ActivityIndicator } from "react-native";
-import { supabase } from "../../../lib/supabase";
+import { supabase } from "../../lib/supabase";
 import MatchingScreen from "./_MatchingScreen";
 import { User } from "./_utils";
+import { LinearGradient } from "expo-linear-gradient";
+import { theme } from "../../lib/theme";
 
 const PAGE_SIZE = 10;
 
@@ -61,5 +63,14 @@ export default function MatchingIndex() {
         )
     }
 
-    return <MatchingScreen currentUser={currentUser} matches={matches} loading={fetchLoading} fetchMatchesFn={fetchMatches} />
+    return (
+        <LinearGradient
+                    colors={theme.gradients.background}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={{ flex: 1 }}
+                >
+        <MatchingScreen currentUser={currentUser} matches={matches} loading={fetchLoading} fetchMatchesFn={fetchMatches} />
+        </LinearGradient>
+    );
 }

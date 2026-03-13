@@ -1,5 +1,8 @@
 //---------------------Imports------------------------
 import React, { useEffect, useState } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+import { theme } from "@/lib/theme"
+
 import {
   View,
   Text,
@@ -218,7 +221,7 @@ export default function Index() {
       selectedSubject
     );
 
-    const flattened = Object.values(grouped).flat();
+    const flattened = Object.values(grouped ?? {}).flat();
 
     setGroupedSessions(grouped);
     setSessions(flattened);
@@ -269,6 +272,12 @@ export default function Index() {
 
 
   return (
+    <LinearGradient
+      colors={theme.gradients.background}
+      start={{x: 0, y:0}}
+      end={{x: 1, y: 1}}
+      style={{ flex: 1 }}
+    >
   <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 32 }}>
     {/* Page Title */}
     <Text style={styles.header}>Find a Study Session</Text>
@@ -429,6 +438,7 @@ export default function Index() {
       </View>
     </Modal>
   </ScrollView>
+  </LinearGradient>
 );
 }
 
@@ -436,7 +446,6 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: palette.background,
   },
   header: {
     fontSize: 22,

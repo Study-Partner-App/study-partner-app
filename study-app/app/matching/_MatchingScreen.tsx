@@ -16,7 +16,7 @@ export default function MatchingScreen({ currentUser, matches, loading, fetchMat
             data = {matches}
             keyExtractor={(item) => item.id}
             renderItem={({item}) => <MatchCard user={item} />}
-            contentContainerStyle={{ padding: 16}}
+            contentContainerStyle={{ padding: 12}}
             ListFooterComponent={loading ? <ActivityIndicator /> : null}
             ListEmptyComponent={!loading ? <Text>No Matches Found.</Text> : null}
             onEndReached={fetchMatchesFn}
