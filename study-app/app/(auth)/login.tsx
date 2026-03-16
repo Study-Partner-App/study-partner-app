@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button } from 'react-native';
+import { View, TextInput, Button, Text, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from "@/lib/supabase";
 import { styles } from '@/lib/styles';
+import { LinearGradient } from "expo-linear-gradient";
+import { theme } from '@/lib/theme';
 
 const LoginPage = () => {
     const router = useRouter();
@@ -42,31 +44,61 @@ const LoginPage = () => {
     }
 
     return (
-        <View style={styles.page}>
+        <LinearGradient
+            colors={theme.gradients.background}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ flex: 1 }}
+        >
+        <View style={styles.loginContainer}>
+
+            <Text style={styles.loginTitle}>Welcome!</Text>
+
+            <Text style={{fontSize: 16, fontWeight: 'bold', marginBottom: 8}}>Email:</Text>
             <TextInput 
                 style={styles.input}
                 placeholder="Email"
-                placeholderTextColor={styles.input.color}
+                placeholderTextColor={styles.placeholderText.color}
                 value={email}
                 onChangeText={handleEmail}
             />
+            <Text style={{fontSize: 16, fontWeight: 'bold', marginBottom: 8}}>Password:</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Password"
-                placeholderTextColor={styles.input.color}
+                placeholderTextColor={styles.placeholderText.color}
                 value={password}
                 onChangeText={handlePassword}
                 secureTextEntry
             />
-            <View style={styles.buttonContainer}>
-                <View style={styles.buttonWrapper}>
-                    <Button title="Submit" onPress={handleSubmit} />
-                </View>
-                <View style={styles.buttonWrapper}>
-                    <Button title="Create Account" onPress={handleCreateAccount} />
-                </View>
+
+            <View style={{ marginTop: 20 }}>
+                <Pressable onPress={handleSubmit}>
+                    <LinearGradient
+                        colors={theme.gradients.loginButton}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.loginButton}
+                    >    
+                        <Text style={styles.loginButtonText}>Login</Text>
+                    </LinearGradient>
+                </Pressable>
+            </View>
+
+            <View style={{ marginTop: 10 }}>
+                <Pressable onPress={handleCreateAccount}>
+                    <LinearGradient
+                        colors={theme.gradients.loginButton}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.loginButton}
+                    >    
+                        <Text style={styles.loginButtonText}>Create Account</Text>
+                    </LinearGradient>
+                </Pressable>
             </View>
         </View>
+        </LinearGradient>
     )   
 };
 

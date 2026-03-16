@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
+import {theme} from "@/lib/theme";
+import { LinearGradient } from "expo-linear-gradient";
 
 import {
     SafeAreaView,
@@ -143,27 +145,39 @@ export default function AnnouncementBoardScreen() {
 
     // ---- render ----
     return (
+        <LinearGradient
+                    colors={theme.gradients.background}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={{ flex: 1 }}
+                >
         <SafeAreaView style={styles.safe}>
             <View style={styles.page}>
                 <Text style={styles.heading}>Today's Announcement Board</Text>
 
                 {/* Filter chips */}
-                <View style={styles.chipRow}>
-                    {filters.map((label) => {
-                        const active = label === activeFilter;
+                <FlatList
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    data={filters}
+                    keyExtractor={(item) => item}
+                    contentContainerStyle={styles.chipRow}
+                    style={{ flexGrow: 0 }}
+                    renderItem={({ item }) => {
+                        const active = item === activeFilter;
                         return (
                             <Pressable
-                                key={label}
-                                onPress={() => setActiveFilter(label)}
+                                key={item}
+                                onPress={() => setActiveFilter(item)}
                                 style={[styles.chip, active && styles.chipActive]}
                             >
                                 <Text style={[styles.chipText, active && styles.chipTextActive]}>
-                                    {label}
+                                    {item}
                                 </Text>
                             </Pressable>
                         );
-                    })}
-                </View>
+                    }}
+                />
 
                 {/* List */}
                 {loading ? (
@@ -219,20 +233,22 @@ export default function AnnouncementBoardScreen() {
                 )}
             </View>
         </SafeAreaView>
+        </LinearGradient>
     );
 }
 
 // ---------- styles ----------
 const styles = StyleSheet.create({
-    safe: { flex: 1, backgroundColor: "#F9FAFB" },
+    safe: { flex: 1},
     page: { flex: 1, paddingHorizontal: 16, paddingTop: Platform.OS === "android" ? 40 : 16 },
-    heading: { fontSize: 22, fontWeight: "800", color: "#111827", marginBottom: 12 },
-    chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 },
+    heading: { fontSize: 22, fontWeight: "800", color: "#111827", marginBottom: 12, textAlign: "center" },
+    chipRow: { paddingVertical: 6, gap: 6, alignItems: "center"},
     chip: {
         paddingHorizontal: 14,
         paddingVertical: 7,
         borderRadius: 20,
         backgroundColor: "#E5E7EB",
+        marginBottom: 12
     },
     chipActive: { backgroundColor: "#2563EB" },
     chipText: { fontSize: 13, fontWeight: "600", color: "#374151" },
@@ -245,7 +261,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.06,
         shadowRadius: 6,
         shadowOffset: { width: 0, height: 2 },
-        elevation: 2,
+        elevation: 4,
     },
     cardTitle: { fontSize: 16, fontWeight: "700", color: "#111827", marginBottom: 4 },
     cardSub: { fontSize: 13, color: "#6B7280", marginBottom: 6 },
