@@ -22,9 +22,50 @@ import { ActivityIndicator } from 'react-native';
 import TimePicker from './TimePicker';
 import {
   validateThirtyMinuteRange,
-  snapToThirty,           
+  snapToThirty,
   isOnThirtyBoundary
 } from './useTimeFilter';
+
+import CourseDropdown from './CourseDropdown';
+
+//-----------------------Load courses (will probably need to load from some separate file later)---------------------------------
+const COURSES: string[] = [
+  'CS2003',
+  'BIOL1603',
+  'CS2123',
+  'Chem3013',
+  'MATH2024',
+  'MATH221',
+  'MATH241',
+  'BIO101',
+  'BIO220',
+  'CHEM110',
+  'CHEM210',
+  'PHYS121',
+];
+
+const normalize = (s: string) =>
+  s.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+
+const courseMatches = (course: string, query: string) => {
+  const c = normalize(course);
+  const q = normalize(query);
+
+  if (!q) return true; //Show all when empty
+  if (c.startsWith(q)) return true;
+  if (c.includes(q)) return true;
+
+  //Allow 1 missing or transposed char for short queries
+  if (q.length >= 2) {
+    // transposition check (e.g., "C1S01" vs "CS101")
+    for (let i = 0; i < q.length - 1; i++) {
+      const transposed = q.slice(0, i) + q[i + 1] + q[i] + q.slice(i + 2);
+      if (c.includes(transposed)) return true;
+    }
+  }
+
+  return false;
+};
 
 //Theme
 const palette = {
@@ -245,263 +286,279 @@ export default function Index() {
 
   //-------------------- Helpers for making sure end times don't break 30-minute logic--------------------
   //Time math helpers (24h circular clock)
-const MAX_MINUTES = 30;
+  const MAX_MINUTES = 30;
 
-const toMinutes = (hhmm?: string | null) => {
-  if (!hhmm) return null;
-  const [h, m] = hhmm.split(':').map(Number);
-  return h * 60 + m;
-};
 
-const toHHMM = (mins: number) => {
-  // Normalize to [0, 1440)
-  const t = ((mins % 1440) + 1440) % 1440;
-  const h = String(Math.floor(t / 60)).padStart(2, '0');
-  const m = String(t % 60).padStart(2, '0');
-  return `${h}:${m}`;
-};
+  const isHHMM = (v?: string | null): v is string =>
+    !!v && /^\d{2}:\d{2}$/.test(v);
 
-// Forward difference from a to b (in minutes) on a 24h clock
-const forwardDiff = (a: number, b: number) => ((b - a + 1440) % 1440);
+  const toMinutes = (hhmm?: string | null) => {
+    if (!isHHMM(hhmm)) return null;
+    const [h, m] = hhmm.split(':').map(Number);
+    return h * 60 + m;
+  };
 
+
+  const toHHMM = (mins: number) => {
+    const t = ((mins % 1440) + 1440) % 1440;
+    const h = String(Math.floor(t / 60)).padStart(2, '0');
+    const m = String(t % 60).padStart(2, '0');
+    return `${h}:${m}`;
+  };
+
+
+  // Forward difference from a to b (in minutes) on a 24h clock
+
+  const forwardDiff = (a: number, b: number) => ((b - a + 1440) % 1440);
+  ``
 
   // -------------------- Handlers --------------------
 
   const onStartChange = (hhmm: string) => {
-  // Snap to 30-min boundary if needed
-  const snapped = isOnThirtyBoundary(hhmm) ? hhmm : snapToThirty(hhmm, 'nearest');
-  const s = toMinutes(snapped);
-  const e = toMinutes(endTime);
+    // Snap to 30-min boundary if needed
+    const snapped = isOnThirtyBoundary(hhmm) ? hhmm : snapToThirty(hhmm, 'nearest');
+    const s = toMinutes(snapped);
+    const e = toMinutes(endTime);
 
-  setStartTime(snapped);
+    setStartTime(snapped);
 
-  // If no end yet, prefill to start + 30
-  if (e == null && s != null) {
-    const nextEnd = toHHMM(s + MAX_MINUTES);
-    setEndTime(nextEnd);
-    setTimeError(null);
-    return;
-  }
-
-  if (s != null && e != null) {
-    const diff = forwardDiff(s, e);
-
-    // If end is same as start or more than 30 minutes after, clamp end to start + 30
-    if (diff === 0 || diff > MAX_MINUTES) {
-      const clampedEnd = toHHMM(s + MAX_MINUTES);
-      setEndTime(clampedEnd);
-      setTimeError('End time adjusted to be within 30 minutes of start.');
-    } else {
+    // If no end yet, prefill to start + 30
+    if (e == null && s != null) {
+      const nextEnd = toHHMM(s + MAX_MINUTES);
+      setEndTime(nextEnd);
       setTimeError(null);
+      return;
     }
-  }
-};
 
-const onEndChange = (hhmm: string) => {
-  // Snap to 30-min boundary if needed
-  const snapped = isOnThirtyBoundary(hhmm) ? hhmm : snapToThirty(hhmm, 'nearest');
-  const e = toMinutes(snapped);
-  const s = toMinutes(startTime);
+    if (s != null && e != null) {
+      const diff = forwardDiff(s, e);
 
-  // If end picked first, set start = end - 30
-  if (s == null && e != null) {
-    const newStart = toHHMM(e - MAX_MINUTES);
-    setStartTime(newStart);
-    setEndTime(snapped);
-    setTimeError('Start time set to 30 minutes before end.');
-    return;
-  }
+      // If end is same as start or more than 30 minutes after, clamp end to start + 30
+      if (diff === 0 || diff > MAX_MINUTES) {
+        const clampedEnd = toHHMM(s + MAX_MINUTES);
+        setEndTime(clampedEnd);
+        setTimeError('End time adjusted to be within 30 minutes of start.');
+      } else {
+        setTimeError(null);
+      }
+    }
+  };
 
-  if (s != null && e != null) {
-    const diff = forwardDiff(s, e);
+  const onEndChange = (hhmm: string) => {
+    // Snap to 30-min boundary if needed
+    const snapped = isOnThirtyBoundary(hhmm) ? hhmm : snapToThirty(hhmm, 'nearest');
+    const e = toMinutes(snapped);
+    const s = toMinutes(startTime);
 
-    // If end is same as start or more than 30 minutes after, clamp start to end - 30
-    if (diff === 0 || diff > MAX_MINUTES) {
-      const clampedStart = toHHMM(e - MAX_MINUTES);
-      setStartTime(clampedStart);
+    // If end picked first, set start = end - 30
+    if (s == null && e != null) {
+      const newStart = toHHMM(e - MAX_MINUTES);
+      setStartTime(newStart);
       setEndTime(snapped);
-      setTimeError('Start time adjusted to keep session ≤ 30 minutes.');
+      setTimeError('Start time set to 30 minutes before end.');
+      return;
+    }
+
+    if (s != null && e != null) {
+      const diff = forwardDiff(s, e);
+
+      // If end is same as start or more than 30 minutes after, clamp start to end - 30
+      if (diff === 0 || diff > MAX_MINUTES) {
+        const clampedStart = toHHMM(e - MAX_MINUTES);
+        setStartTime(clampedStart);
+        setEndTime(snapped);
+        setTimeError('Start time adjusted to keep session ≤ 30 minutes.');
+      } else {
+        setEndTime(snapped);
+        setTimeError(null);
+      }
     } else {
+      // Fallback when e is null (unlikely since we're in onEndChange)
       setEndTime(snapped);
-      setTimeError(null);
     }
-  } else {
-    // Fallback when e is null (unlikely since we're in onEndChange)
-    setEndTime(snapped);
-  }
-};
+  };
 
 
 
   return (
     <LinearGradient
       colors={theme.gradients.background}
-      start={{x: 0, y:0}}
-      end={{x: 1, y: 1}}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
     >
-  <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 32 }}>
-    {/* Page Title */}
-    <Text style={styles.header}>Find a Study Session</Text>
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 32 }}>
+        {/* Page Title */}
+        <Text style={styles.header}>Find a Study Session</Text>
 
-    {/* --- FILTER CARD --- */}
-    <View style={[styles.cardSurface, { padding: 16, marginBottom: 20 }]}>
-      {/* Section: Time Window */}
-      <Text style={styles.sectionHeader}>Time Window</Text>
-      <SegmentedControl value={timeFilter} onChange={setTimeFilter} />
+        {/* --- FILTER CARD --- */}
+        <View style={[styles.cardSurface, { padding: 16, marginBottom: 20 }]}>
+          {/* Section: Time Window */}
+          <Text style={styles.sectionHeader}>Time Window</Text>
+          <SegmentedControl value={timeFilter} onChange={setTimeFilter} />
 
-      {/* Section: Time Pickers */}
-      <View style={{ marginBottom: 12 }}>
-        <Text style={styles.label}>Select Time</Text>
-        {/* Two pickers side-by-side on wide screens; stacked on narrow */}
-        <View style={{ flexDirection: 'row', gap: 12 }}>
-          <View style={{ flex: 1 }}>
-            <TimePicker label="Start" value={startTime} onChange={onStartChange} required />
+          {/* Section: Time Pickers */}
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            <View style={{ flex: 1 }}>
+              <TimePicker
+                label="Start"
+                value={startTime}           // 24h 'HH:MM'
+                onChange={onStartChange}    // already expects 24h
+                required
+                format="12h"                //enable AM/PM UI
+                snap="onBlur"               // or "live" if want immediate snap to :00/:30
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <TimePicker
+                label="End"
+                value={endTime}
+                onChange={onEndChange}
+                required
+                format="12h"
+                snap="onBlur"
+              />
+            </View>
           </View>
-          <View style={{ flex: 1 }}>
-            <TimePicker label="End" value={endTime} onChange={onEndChange} required />
-          </View>
-        </View>
-        {timeError && <Text style={styles.errorText}>{timeError}</Text>}
-      </View>
 
-      {/* Section: Search Filters */}
-      <Text style={styles.sectionHeader}>Search Filters</Text>
+          {/* Section: Search Filters */}
+          <Text style={styles.sectionHeader}>Search Filters</Text>
 
-      {/* Subject picker */}
-      <Text style={styles.label}>Subject</Text>
-      <TouchableOpacity
-        style={styles.dropdown}
-        onPress={() => setSubjectModalVisible(true)}
-        activeOpacity={0.8}
-      >
-        <Text style={{ color: selectedSubject ? palette.text : palette.subtext }}>
-          {selectedSubject || 'Select a subject...'}
-        </Text>
-        {/* Right chevron indicator */}
-        <Text style={{ position: 'absolute', right: 12, color: palette.subtext }}>⌄</Text>
-      </TouchableOpacity>
-      {!selectedSubject && <Text style={styles.errorText}>Subject is required</Text>}
+          {/* Subject picker */}
+          <Text style={styles.label}>Subject</Text>
+          <TouchableOpacity
+            style={styles.dropdown}
+            onPress={() => setSubjectModalVisible(true)}
+            activeOpacity={0.8}
+          >
+            <Text style={{ color: selectedSubject ? palette.text : palette.subtext }}>
+              {selectedSubject || 'Select a subject...'}
+            </Text>
+            {/* Right chevron indicator */}
+            <Text style={{ position: 'absolute', right: 12, color: palette.subtext }}>⌄</Text>
+          </TouchableOpacity>
+          {!selectedSubject && <Text style={styles.errorText}>Subject is required</Text>}
 
-      {/* Course */}
-      <Text style={styles.label}>Course (optional)</Text>
-      <TextInput
-        value={selectedCourse}
-        onChangeText={setSelectedCourse}
-        style={styles.input}
-        placeholder="e.g., CS101"
-        placeholderTextColor={palette.subtext}
-      />
-
-      {/* Actions */}
-      <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
-        <View style={{ flex: 1 }}>
-          <PrimaryButton title="Find Sessions" onPress={async () => {
-            // Validate before searching
-            const { valid, error } = validateThirtyMinuteRange(startTime, endTime);
-            if (!valid) { setTimeError(error || 'Invalid time range.'); return; }
-            setTimeError(null);
-            await loadSessions();
-          }} disabled={!selectedSubject || loading} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <SecondaryButton title="Clear" onPress={() => {
-            setSelectedSubject('');
-            setSelectedCourse('');
-            setStartTime('');
-            setEndTime('');
-            setSessions([]);
-            setGroupedSessions({});
-            setTimeError(null);
-          }} />
-        </View>
-      </View>
-    </View>
-
-    {/* --- RESULTS --- */}
-    <Text style={styles.sectionHeader}>Results</Text>
-
-    {/* Loading */}
-    {loading && (
-      <View style={[styles.cardSurface, { padding: 16, flexDirection: 'row', alignItems: 'center', gap: 10 }]}>
-        {/* ActivityIndicator from react-native */}
-        <ActivityIndicator color={palette.primary} />
-        <Text style={{ color: palette.subtext }}>Searching sessions…</Text>
-      </View>
-    )}
-
-    {/* Empty state */}
-    {!loading && sessions.length === 0 && (
-      <View style={[styles.cardSurface, { padding: 16 }]}>
-        <Text style={{ color: palette.subtext }}>No matching sessions found. Try adjusting your time or filters.</Text>
-      </View>
-    )}
-
-    {/* Session list */}
-    {!loading && sessions.length > 0 && (
-      <View>
-        <Text style={styles.resultsHeader}>Sessions Found: {sessions.length}</Text>
-        {sessions.map((s) => (
-          <SessionCard key={s.id} s={s} />
-        ))}
-      </View>
-    )}
-
-    {/* (Might use later) Grouped By Slot*/}
-    {/* <Text style={styles.sectionHeader}>Matched Slots</Text> ... */}
-
-    {/* Subject Modal */}
-    <Modal visible={subjectModalVisible} transparent animationType="fade">
-      <View style={styles.modalOverlay}>
-        <View style={[styles.modalContainer, shadowStyle]}>
-          <Text style={{ fontWeight: '700', fontSize: 16, marginBottom: 10, color: palette.text }}>Select Subject</Text>
-
-          <TextInput
-            placeholder="Search subjects…"
-            value={subjectSearch}
-            onChangeText={setSubjectSearch}
-            style={styles.input}
-            placeholderTextColor={palette.subtext}
+          {/* Course */}
+          <CourseDropdown
+            label="Course"
+            value={selectedCourse}
+            onChange={setSelectedCourse}
+            courses={COURSES}
+            courseMatches={courseMatches}
+            palette={palette}
           />
 
-          <View style={{ maxHeight: 260 }}>
-            {filteredSubjects.map((subject, index) => (
-              <TouchableOpacity
-                key={index}
-                style={{
-                  paddingVertical: 12,
-                  paddingHorizontal: 8,
-                  borderBottomWidth: index < filteredSubjects.length - 1 ? StyleSheet.hairlineWidth : 0,
-                  borderBottomColor: palette.border,
-                  borderRadius: 8,
-                }}
-                onPress={() => {
-                  setSelectedSubject(subject);
-                  setSubjectModalVisible(false);
-                  setSubjectSearch('');
-                }}
-                activeOpacity={0.7}
-              >
-                <Text style={{ color: palette.text }}>{subject}</Text>
-              </TouchableOpacity>
-            ))}
-            {filteredSubjects.length === 0 && (
-              <Text style={{ marginTop: 10, fontStyle: 'italic', color: palette.subtext }}>No subjects found</Text>
-            )}
-          </View>
 
-          <TouchableOpacity
-            style={{ marginTop: 16, alignItems: 'center' }}
-            onPress={() => setSubjectModalVisible(false)}
-          >
-            <Text style={{ color: palette.danger, fontWeight: '600' }}>Cancel</Text>
-          </TouchableOpacity>
+          {/* Actions */}
+          <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+            <View style={{ flex: 1 }}>
+              <PrimaryButton title="Find Sessions" onPress={async () => {
+                // Validate before searching
+                const { valid, error } = validateThirtyMinuteRange(startTime, endTime);
+                if (!valid) { setTimeError(error || 'Invalid time range.'); return; }
+                setTimeError(null);
+                await loadSessions();
+              }} disabled={!selectedSubject || loading} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <SecondaryButton title="Clear" onPress={() => {
+                setSelectedSubject('');
+                setSelectedCourse('');
+                setStartTime('');
+                setEndTime('');
+                setSessions([]);
+                setGroupedSessions({});
+                setTimeError(null);
+              }} />
+            </View>
+          </View>
         </View>
-      </View>
-    </Modal>
-  </ScrollView>
-  </LinearGradient>
-);
+
+        {/* --- RESULTS --- */}
+        <Text style={styles.sectionHeader}>Results</Text>
+
+        {/* Loading */}
+        {loading && (
+          <View style={[styles.cardSurface, { padding: 16, flexDirection: 'row', alignItems: 'center', gap: 10 }]}>
+            {/* ActivityIndicator from react-native */}
+            <ActivityIndicator color={palette.primary} />
+            <Text style={{ color: palette.subtext }}>Searching sessions…</Text>
+          </View>
+        )}
+
+        {/* Empty state */}
+        {!loading && sessions.length === 0 && (
+          <View style={[styles.cardSurface, { padding: 16 }]}>
+            <Text style={{ color: palette.subtext }}>No matching sessions found. Try adjusting your time or filters.</Text>
+          </View>
+        )}
+
+        {/* Session list */}
+        {!loading && sessions.length > 0 && (
+          <View>
+            <Text style={styles.resultsHeader}>Sessions Found: {sessions.length}</Text>
+            {sessions.map((s) => (
+              <SessionCard key={s.id} s={s} />
+            ))}
+          </View>
+        )}
+
+        {/* (Might use later) Grouped By Slot*/}
+        {/* <Text style={styles.sectionHeader}>Matched Slots</Text> ... */}
+
+        {/* Subject Modal */}
+        <Modal visible={subjectModalVisible} transparent animationType="fade">
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalContainer, shadowStyle]}>
+              <Text style={{ fontWeight: '700', fontSize: 16, marginBottom: 10, color: palette.text }}>Select Subject</Text>
+
+              <TextInput
+                placeholder="Search subjects…"
+                value={subjectSearch}
+                onChangeText={setSubjectSearch}
+                style={styles.input}
+                placeholderTextColor={palette.subtext}
+              />
+
+              <View style={{ maxHeight: 260 }}>
+                {filteredSubjects.map((subject, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={{
+                      paddingVertical: 12,
+                      paddingHorizontal: 8,
+                      borderBottomWidth: index < filteredSubjects.length - 1 ? StyleSheet.hairlineWidth : 0,
+                      borderBottomColor: palette.border,
+                      borderRadius: 8,
+                    }}
+                    onPress={() => {
+                      setSelectedSubject(subject);
+                      setSubjectModalVisible(false);
+                      setSubjectSearch('');
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={{ color: palette.text }}>{subject}</Text>
+                  </TouchableOpacity>
+                ))}
+                {filteredSubjects.length === 0 && (
+                  <Text style={{ marginTop: 10, fontStyle: 'italic', color: palette.subtext }}>No subjects found</Text>
+                )}
+              </View>
+
+              <TouchableOpacity
+                style={{ marginTop: 16, alignItems: 'center' }}
+                onPress={() => setSubjectModalVisible(false)}
+              >
+                <Text style={{ color: palette.danger, fontWeight: '600' }}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </ScrollView>
+    </LinearGradient>
+  );
 }
 
 // -------------------- Styles --------------------
