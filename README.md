@@ -21,13 +21,19 @@ study-app/
 │   │   │
 │   │   ├── time-filter/
 │   │   │   ├── index.tsx          # TimeFilterScreen
-│   │   │   ├── TimePicker.tsx
+│   │   │   ├── CourseDropdown.tsx
+|   |   |   ├── TimePicker.tsx
 │   │   │   └── useTimeFilter.ts
 │   │   │
 │   │   ├── matching/
 │   │   │   ├── index.tsx          # MatchingScreen
 │   │   │   ├── MatchCard.tsx
 │   │   │   └── useMatching.ts
+|   |   |
+|   |   ├──study-sessions/         
+|   |   |   ├── index.tsx          # SessionsScreen
+|   |   |   ├── create_sessions.tsx
+|   |   |   ├── view_session.tsx
 │   │   │
 │   │   └── _layout.tsx            # Bottom tabs
 │   │

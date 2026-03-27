@@ -3,6 +3,7 @@ import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Ionicons } from "@expo/vector-icons"
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
@@ -16,20 +17,29 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
       }}>
+
+      
       <Tabs.Screen
         name="index"
         options={{
+          headerTitle: 'Home',
           title: 'Home',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
+
       <Tabs.Screen
-        name="explore"
+        name="features"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          headerTitle: "Features",
+          title: "Features",
+          tabBarIcon: ({ color }) => (<Ionicons size={28} name="grid" color={color} />),
         }}
       />
+
+
     </Tabs>
+
+    
   );
 }
