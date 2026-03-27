@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { theme } from "@/lib/theme";
 
 export const styles = StyleSheet.create({
     // Profile Card
@@ -146,6 +147,30 @@ export const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 16,
         fontWeight: "bold",
+    },
+
+    input: {
+        borderWidth: 1,
+        borderColor: theme.palette.border,
+        borderRadius: 10,
+        padding: 10,
+        marginBottom: 12,
+        backgroundColor: '#fff',
+        color: theme.palette.text,
+    },
+
+    dropdownInput: {
+        borderWidth: 1,
+        borderColor: theme.palette.border,
+        borderRadius: 10,
+        padding: 10,
+        marginBottom: 12,
+        backgroundColor: '#fff',
+        color: theme.palette.text,
+    },
+
+    dropdownPlaceholder: {
+        color: theme.palette.subtext,
     },
 
     featureTitle: {

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, TextInput, Button, Text, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from "@/lib/supabase";
-import { styles } from '@/lib/styles';
+import { styles } from "@/app/_styles/globalStyles";
 import { LinearGradient } from "expo-linear-gradient";
 import { theme } from '@/lib/theme';
 
@@ -115,19 +115,19 @@ const SignUpPage = () => {
             style={{ flex: 1 }}
         >
 
-        <View style={styles.loginContainer}>
-            <Text style={styles.loginTitle}>Create Account</Text>
+        <View style={styles.container}>
+            <Text style={styles.hs_title}>Create Account</Text>
             <TextInput 
                 style={styles.input}
                 placeholder="Email"
-                placeholderTextColor={styles.placeholderText.color}
+                placeholderTextColor={theme.palette.subtext}
                 value={email}
                 onChangeText={handleEmail}
             />
             <TextInput
                 style={styles.input}
                 placeholder="Password"
-                placeholderTextColor={styles.placeholderText.color}
+                placeholderTextColor={theme.palette.subtext}
                 value={password}
                 onChangeText={handlePassword}
                 secureTextEntry
@@ -135,7 +135,7 @@ const SignUpPage = () => {
             <TextInput
                 style={styles.input}
                 placeholder="Confirm Password"
-                placeholderTextColor={styles.placeholderText.color}
+                placeholderTextColor={theme.palette.subtext}
                 value={confirmPassword}
                 onChangeText={handleConfirmPassword}
                 secureTextEntry
@@ -143,28 +143,28 @@ const SignUpPage = () => {
             <TextInput
                 style={styles.input}
                 placeholder="University"
-                placeholderTextColor={styles.placeholderText.color}
+                placeholderTextColor={theme.palette.subtext}
                 value={university}
                 onChangeText={handleUniversity}
             />
             <TextInput
                 style={styles.input}
                 placeholder="Major"
-                placeholderTextColor={styles.placeholderText.color}
+                placeholderTextColor={theme.palette.subtext}
                 value={major}
                 onChangeText={handleMajor}
             />
             <TextInput
                 style={styles.input}
                 placeholder="(Optional) First Name"
-                placeholderTextColor={styles.placeholderText.color}
+                placeholderTextColor={theme.palette.subtext}
                 value={firstName}
                 onChangeText={handleFirstName}
             />
             <TextInput
                 style={styles.input}
                 placeholder="(Optional) Last Name"
-                placeholderTextColor={styles.placeholderText.color}
+                placeholderTextColor={theme.palette.subtext}
                 value={lastName}
                 onChangeText={handleLastName}
             />

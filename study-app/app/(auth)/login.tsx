@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, TextInput, Button, Text, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from "@/lib/supabase";
-import { styles } from '@/lib/styles';
+import { styles } from "@/app/_styles/globalStyles";
 import { LinearGradient } from "expo-linear-gradient";
 import { theme } from '@/lib/theme';
 
@@ -50,15 +50,15 @@ const LoginPage = () => {
             end={{ x: 1, y: 1 }}
             style={{ flex: 1 }}
         >
-        <View style={styles.loginContainer}>
+        <View style={styles.container}>
 
-            <Text style={styles.loginTitle}>Welcome!</Text>
+            <Text style={styles.hs_title}>Welcome!</Text>
 
             <Text style={{fontSize: 16, fontWeight: 'bold', marginBottom: 8}}>Email:</Text>
             <TextInput 
                 style={styles.input}
                 placeholder="Email"
-                placeholderTextColor={styles.placeholderText.color}
+                placeholderTextColor={theme.palette.subtext}
                 value={email}
                 onChangeText={handleEmail}
             />
@@ -66,7 +66,7 @@ const LoginPage = () => {
             <TextInput
                 style={styles.input}
                 placeholder="Password"
-                placeholderTextColor={styles.placeholderText.color}
+                placeholderTextColor={theme.palette.subtext}
                 value={password}
                 onChangeText={handlePassword}
                 secureTextEntry
@@ -80,7 +80,7 @@ const LoginPage = () => {
                         end={{ x: 1, y: 1 }}
                         style={styles.loginButton}
                     >    
-                        <Text style={styles.loginButtonText}>Login</Text>
+                        <Text style={styles.loginButtonText}>submit</Text>
                     </LinearGradient>
                 </Pressable>
             </View>
