@@ -1,0 +1,4 @@
+- What should we do for those who have more than one major.
+    - We may need to accept major as a list.
+- Should we add college year column?
+- 

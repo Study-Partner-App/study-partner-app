@@ -2,13 +2,12 @@ import { Button } from "@react-navigation/elements";
 import { StyleSheet, Platform } from "react-native";
 
 const styles = StyleSheet.create({
-    safe: { flex: 1, backgroundColor: "#F4F5F7" },
+    safe: { flex: 1},
 
     page: {
         flex: 1,
         paddingHorizontal: 24,
         paddingTop: 16,
-        backgroundColor: "#F4F5F7",
     },
 
     title: {
@@ -176,16 +175,21 @@ const styles = StyleSheet.create({
         height: '30%',
     },
 
+    // Input Box Styling
     input: {
         paddingHorizontal: 20,
         paddingVertical: 10,
-        height: 20,
         width: '100%',
         borderColor: 'gray',
         borderWidth: 1,
-        marginBottom: 10,
         backgroundColor: '#ffffff',
-        color: '#0000004b',
+        color: 'black',
+        marginBottom: 12,
+        borderRadius: 12,
+    },
+
+    placeholderText: {
+        color: "#0606064b"
     },
 
     buttonContainer: {
@@ -193,7 +197,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingHorizontal: 20,
         paddingVertical: 10,
-        width: '20%', // Make the container take the only 20% the width of its parent
+        //width: '20%', // Make the container take the only 20% the width of its parent
     },
 
     buttonWrapper: {
@@ -202,6 +206,37 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10, // Add horizontal padding to ensure buttons aren't edge-to-edge within the wrapper
         // You can also add margin or other styles here
     },
+
+    // LOGIN / SIGNUP PAGE STYLES
+    // Button Style
+    loginButton: {
+      paddingVertical: 14,
+      borderRadius: 12,
+      alignItems: "center",  
+      marginBottom: 12,
+    },
+
+    loginButtonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+
+    loginContainer: {
+        flex: 1,
+        justifyContent: "center",
+        paddingHorizontal: 30,
+    },
+
+    loginTitle: {
+        fontSize: 32, 
+        fontWeight: 'bold', 
+        marginBottom: 24, 
+        color: '#111827', 
+        textAlign: "center"
+    }, 
+
+    
 
 });
 

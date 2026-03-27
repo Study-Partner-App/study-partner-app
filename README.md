@@ -21,7 +21,8 @@ study-app/
 │   │   │
 │   │   ├── time-filter/
 │   │   │   ├── index.tsx          # TimeFilterScreen
-│   │   │   ├── TimePicker.tsx
+│   │   │   ├── CourseDropdown.tsx
+|   |   |   ├── TimePicker.tsx
 │   │   │   └── useTimeFilter.ts
 │   │   │
 │   │   ├── matching/

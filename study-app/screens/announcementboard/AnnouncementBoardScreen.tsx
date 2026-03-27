@@ -1,4 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import {theme} from "@/lib/theme";
+import { LinearGradient } from "expo-linear-gradient";
 
 import {
     SafeAreaView,
@@ -9,14 +11,17 @@ import {
     Platform,
     FlatList,
     Alert,
+    ActivityIndicator,
 } from "react-native";
+
+import { supabase } from "../../lib/supabase";
 
 type Filter = "All" | "Starts soon" | "Quiet" | "Academic" | "Social";
 
 type Announcement = {
     id: string;
     title: string;
-    startMinutesFromNow: number; // simple mock for "Starts soon"
+    startMinutesFromNow: number;
     timeLabel: string;
     location: string;
     distanceMiles?: number;
@@ -24,55 +29,100 @@ type Announcement = {
     category: "Academic" | "Social";
 };
 
-const MOCK_ANNOUNCEMENTS: Announcement[] = [
-    {
-        id: "a1",
-        title: "Calc II — Integration practice",
-        startMinutesFromNow: 30,
-        timeLabel: "6:00–7:30 PM",
-        location: "McFarlin Library 2nd floor",
-        distanceMiles: 0.4,
-        tags: ["Quiet", "Homework", "Whiteboard"],
-        category: "Academic",
-    },
-    {
-        id: "a2",
-        title: "CS Study Jam — LeetCode + coffee",
-        startMinutesFromNow: 10,
-        timeLabel: "5:10–6:20 PM",
-        location: "Student Union — Atrium",
-        distanceMiles: 0.7,
-        tags: ["Social"],
-        category: "Social",
-    },
-    {
-        id: "a3",
-        title: "BIO 101 — flashcards session",
-        startMinutesFromNow: 120,
-        timeLabel: "8:00–9:00 PM",
-        location: "Science Building Room 210",
-        distanceMiles: 1.2,
-        tags: ["Quiet"],
-        category: "Academic",
-    },
-];
+// ---------- DB row shape (matches your Supabase table) ----------
+type StudySessionRow = {
+    id: number;
+    created_at: string;
+    start_time: string | null;
+    end_time: string | null;
+    subject: string | null;
+    course: string | null;
+    location: string | null;
+    date: string | null;
+    max_people: number | null;
+    is_announced: boolean | null;
+    user_id: string | null;
+    descriptions: string | null;
+};
 
+// ---------- helpers ----------
+function computeMinutesFromNow(date: string | null, time: string | null): number {
+    if (!date || !time) return 9999;
+    // date = "2026-03-06", time = "17:00:00"
+    const dt = new Date(`${date}T${time}`);
+    const now = new Date();
+    return Math.round((dt.getTime() - now.getTime()) / 60000);
+}
+
+function formatTimeLabel(start: string | null, end: string | null): string {
+    if (!start && !end) return "Time TBD";
+    const s = start ? start.slice(0, 5) : "??:??";
+    const e = end ? end.slice(0, 5) : "??:??";
+    return `${s} – ${e}`;
+}
+
+function mapRowToAnnouncement(row: StudySessionRow): Announcement {
+    const minsFromNow = computeMinutesFromNow(row.date, row.start_time);
+
+    return {
+        id: String(row.id),
+        title: row.course
+            ? `${row.course}${row.subject ? " — " + row.subject : ""}`
+            : row.subject ?? "Study session",
+        startMinutesFromNow: minsFromNow,
+        timeLabel: formatTimeLabel(row.start_time, row.end_time),
+        location: row.location ?? "TBD",
+        distanceMiles: undefined,
+        tags: [],
+        category: "Academic",
+    };
+}
+
+// ---------- screen ----------
 export default function AnnouncementBoardScreen() {
     const [activeFilter, setActiveFilter] = useState<Filter>("All");
-    const [announcements, setAnnouncements] = useState<Announcement[]>(MOCK_ANNOUNCEMENTS);
+    const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const filters = useMemo<Filter[]>(
-        () => ["All", "Starts soon", "Quiet", "Academic", "Social"],
-        []
-    );
+    const filters: Filter[] = ["All", "Starts soon", "Quiet", "Academic", "Social"];
 
+    // ---- fetch from Supabase ----
+    const loadAnnouncements = async () => {
+        setLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from("study_sessions")
+                .select("*")
+                .eq("is_announced", true)
+                .order("date", { ascending: true });
+
+            if (error) throw error;
+
+            const rows = (data ?? []) as StudySessionRow[];
+            setAnnouncements(rows.map(mapRowToAnnouncement));
+
+            console.log(`Loaded ${rows.length} announced sessions from Supabase`);
+        } catch (e: any) {
+            console.log("Supabase error:", e);
+            Alert.alert("Supabase error", e?.message ?? "Failed to load sessions");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadAnnouncements();
+    }, []);
+
+    // ---- filtering ----
     const filteredAnnouncements = useMemo(() => {
         switch (activeFilter) {
             case "All":
                 return announcements;
             case "Starts soon":
-                // starts within 45 minutes (mock logic)
-                return announcements.filter((a) => a.startMinutesFromNow <= 45);
+                return announcements.filter(
+                    (a) => a.startMinutesFromNow >= 0 && a.startMinutesFromNow <= 45
+                );
             case "Quiet":
                 return announcements.filter((a) => a.tags.includes("Quiet"));
             case "Academic":
@@ -84,309 +134,151 @@ export default function AnnouncementBoardScreen() {
         }
     }, [announcements, activeFilter]);
 
+    // ---- actions ----
     const handleSkip = (id: string) => {
         setAnnouncements((prev) => prev.filter((a) => a.id !== id));
     };
 
     const handleJoin = (a: Announcement) => {
-        Alert.alert("Joined", `You joined: ${a.title}`);
+        Alert.alert("Joined!", `You joined: ${a.title}`);
     };
 
-    const handleAdd = () => {
-        // simple mock: add a new announcement at the top
-        const next: Announcement = {
-            id: `new-${Date.now()}`,
-            title: "New announcement (mock)",
-            startMinutesFromNow: 20,
-            timeLabel: "Today — 30 min",
-            location: "TBD",
-            distanceMiles: 0.0,
-            tags: ["Quiet"],
-            category: "Academic",
-        };
-
-        setAnnouncements((prev) => [next, ...prev]);
-        setActiveFilter("All");
-    };
-
+    // ---- render ----
     return (
+        <LinearGradient
+                    colors={theme.gradients.background}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={{ flex: 1 }}
+                >
         <SafeAreaView style={styles.safe}>
             <View style={styles.page}>
-                {/* Header */}
-                <Text style={styles.title}>Today's Announcement Board</Text>
+                <Text style={styles.heading}>Today's Announcement Board</Text>
 
                 {/* Filter chips */}
-                <View style={styles.chipRow}>
-                    {filters.map((label) => {
-                        const isActive = label === activeFilter;
+                <FlatList
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    data={filters}
+                    keyExtractor={(item) => item}
+                    contentContainerStyle={styles.chipRow}
+                    style={{ flexGrow: 0 }}
+                    renderItem={({ item }) => {
+                        const active = item === activeFilter;
                         return (
                             <Pressable
-                                key={label}
-                                onPress={() => setActiveFilter(label)}
-                                style={[styles.chip, isActive && styles.chipActive]}
+                                key={item}
+                                onPress={() => setActiveFilter(item)}
+                                style={[styles.chip, active && styles.chipActive]}
                             >
-                                <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
-                                    {label}
+                                <Text style={[styles.chipText, active && styles.chipTextActive]}>
+                                    {item}
                                 </Text>
                             </Pressable>
                         );
-                    })}
-                </View>
+                    }}
+                />
 
-                {/* Content area */}
-                <View style={styles.content}>
+                {/* List */}
+                {loading ? (
+                    <ActivityIndicator size="large" style={{ marginTop: 40 }} />
+                ) : (
                     <FlatList
                         data={filteredAnnouncements}
                         keyExtractor={(item) => item.id}
-                        contentContainerStyle={{ width: "100%", maxWidth: 560 }}
+                        contentContainerStyle={{ paddingBottom: 100 }}
+                        refreshing={loading}
+                        onRefresh={loadAnnouncements}
                         renderItem={({ item }) => (
-                            <AnnouncementCard
-                                announcement={item}
-                                onSkip={() => handleSkip(item.id)}
-                                onJoin={() => handleJoin(item)}
-                            />
+                            <View style={styles.card}>
+                                <Text style={styles.cardTitle}>{item.title}</Text>
+                                <Text style={styles.cardSub}>
+                                    🕐 {item.timeLabel}  📍 {item.location}
+                                </Text>
+                                {item.startMinutesFromNow >= 0 &&
+                                    item.startMinutesFromNow <= 60 && (
+                                        <Text style={styles.cardSoon}>
+                                            Starts in {item.startMinutesFromNow} min
+                                        </Text>
+                                    )}
+                                <View style={styles.cardActions}>
+                                    <Pressable
+                                        onPress={() => handleSkip(item.id)}
+                                        style={styles.btnSkip}
+                                    >
+                                        <Text style={styles.btnSkipText}>Skip</Text>
+                                    </Pressable>
+                                    <Pressable
+                                        onPress={() => handleJoin(item)}
+                                        style={styles.btnJoin}
+                                    >
+                                        <Text style={styles.btnJoinText}>Join</Text>
+                                    </Pressable>
+                                </View>
+                            </View>
                         )}
                         ListEmptyComponent={
-                            <View style={{ paddingTop: 24, alignItems: "center" }}>
-                                <Text style={{ fontWeight: "800", color: "#111827", fontSize: 16 }}>
-                                    No announcements
+                            <View style={{ paddingTop: 40, alignItems: "center" }}>
+                                <Text style={{ fontSize: 16, fontWeight: "700", color: "#111" }}>
+                                    No announced sessions
                                 </Text>
-                                <Text style={{ marginTop: 6, color: "#6B7280", fontWeight: "600" }}>
-                                    Try a different filter or tap + to add a mock item.
+                                <Text style={{ marginTop: 8, color: "#6B7280" }}>
+                                    Add rows in Supabase → study_sessions (is_announced = true),
+                                    then pull to refresh.
                                 </Text>
                             </View>
                         }
-                        ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
-                        showsVerticalScrollIndicator={false}
+                        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
                     />
-                </View>
-
-                {/* Floating action button */}
-                <Pressable style={styles.fab} onPress={handleAdd}>
-                    <Text style={styles.fabText}>+</Text>
-                </Pressable>
+                )}
             </View>
         </SafeAreaView>
+        </LinearGradient>
     );
 }
 
-/** One card layout (now driven by props) */
-function AnnouncementCard({
-    announcement,
-    onSkip,
-    onJoin,
-}: {
-    announcement: Announcement;
-    onSkip: () => void;
-    onJoin: () => void;
-}) {
-    return (
-        <View style={styles.cardShadowWrap}>
-            <View style={styles.card}>
-                <Text style={styles.cardTitle}>{announcement.title}</Text>
-
-                <View style={styles.metaRow}>
-                    <Text style={styles.metaIcon}>🕒</Text>
-                    <Text style={styles.metaText}>{announcement.timeLabel}</Text>
-                </View>
-
-                <View style={styles.metaRow}>
-                    <Text style={styles.metaIcon}>📍</Text>
-                    <Text style={styles.metaText}>
-                        {announcement.location}{" "}
-                        {typeof announcement.distanceMiles === "number" && (
-                            <Text style={styles.metaMuted}>• {announcement.distanceMiles.toFixed(1)} mi</Text>
-                        )}
-                    </Text>
-                </View>
-
-                {/* Tags */}
-                <View style={styles.tagRow}>
-                    {announcement.tags.map((t) => (
-                        <View key={t} style={styles.tag}>
-                            <Text style={styles.tagText}>{t}</Text>
-                        </View>
-                    ))}
-                </View>
-
-                {/* Bottom buttons */}
-                <View style={styles.actionRow}>
-                    <Pressable style={[styles.actionBtn, styles.actionSecondary]} onPress={onSkip}>
-                        <Text style={styles.actionSecondaryText}>Skip</Text>
-                    </Pressable>
-
-                    <Pressable style={[styles.actionBtn, styles.actionPrimary]} onPress={onJoin}>
-                        <Text style={styles.actionPrimaryText}>Join</Text>
-                    </Pressable>
-                </View>
-            </View>
-        </View>
-    );
-}
-
+// ---------- styles ----------
 const styles = StyleSheet.create({
-    safe: { flex: 1, backgroundColor: "#F4F5F7" },
-
-    page: {
-        flex: 1,
-        paddingHorizontal: 24,
-        paddingTop: 16,
-    },
-
-    title: {
-        fontSize: 36,
-        fontWeight: "800",
-        color: "#111827",
-        marginBottom: 16,
-    },
-
-    chipRow: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        marginBottom: 24,
-    },
-
+    safe: { flex: 1},
+    page: { flex: 1, paddingHorizontal: 16, paddingTop: Platform.OS === "android" ? 40 : 16 },
+    heading: { fontSize: 22, fontWeight: "800", color: "#111827", marginBottom: 12, textAlign: "center" },
+    chipRow: { paddingVertical: 6, gap: 6, alignItems: "center"},
     chip: {
-        borderWidth: 1,
-        borderColor: "#D1D5DB",
-        backgroundColor: "#FFFFFF",
-        paddingVertical: 10,
-        paddingHorizontal: 16,
-        borderRadius: 999,
-        marginRight: 10,
-        marginBottom: 10,
+        paddingHorizontal: 14,
+        paddingVertical: 7,
+        borderRadius: 20,
+        backgroundColor: "#E5E7EB",
+        marginBottom: 12
     },
-    chipActive: {
-        backgroundColor: "#111827",
-        borderColor: "#111827",
-    },
-    chipText: {
-        fontWeight: "700",
-        color: "#111827",
-    },
-    chipTextActive: {
-        color: "#FFFFFF",
-    },
-
-    content: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        paddingBottom: 80, // room for FAB
-    },
-
-    cardShadowWrap: {
-        width: "100%",
-        borderRadius: 28,
-        ...Platform.select({
-            ios: {
-                shadowColor: "#000",
-                shadowOpacity: 0.15,
-                shadowRadius: 18,
-                shadowOffset: { width: 0, height: 12 },
-            },
-            android: { elevation: 8 },
-            default: {},
-        }),
-    },
-
+    chipActive: { backgroundColor: "#2563EB" },
+    chipText: { fontSize: 13, fontWeight: "600", color: "#374151" },
+    chipTextActive: { color: "#FFFFFF" },
     card: {
         backgroundColor: "#FFFFFF",
-        borderRadius: 28,
-        padding: 24,
-        borderWidth: 1,
-        borderColor: "#E5E7EB",
+        borderRadius: 12,
+        padding: 16,
+        shadowColor: "#000",
+        shadowOpacity: 0.06,
+        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 4,
     },
-
-    cardTitle: {
-        fontSize: 26,
-        fontWeight: "800",
-        color: "#111827",
-        marginBottom: 16,
-    },
-
-    metaRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginBottom: 10,
-    },
-    metaIcon: { fontSize: 16, marginRight: 10 },
-    metaText: { fontSize: 16, color: "#374151", fontWeight: "600" },
-    metaMuted: { color: "#9CA3AF", fontWeight: "600" },
-
-    tagRow: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        marginTop: 12,
-        marginBottom: 26,
-    },
-    tag: {
+    cardTitle: { fontSize: 16, fontWeight: "700", color: "#111827", marginBottom: 4 },
+    cardSub: { fontSize: 13, color: "#6B7280", marginBottom: 6 },
+    cardSoon: { fontSize: 12, fontWeight: "700", color: "#DC2626", marginBottom: 8 },
+    cardActions: { flexDirection: "row", gap: 10, marginTop: 4 },
+    btnSkip: {
+        paddingHorizontal: 16,
         paddingVertical: 8,
-        paddingHorizontal: 14,
-        borderRadius: 999,
+        borderRadius: 8,
         backgroundColor: "#F3F4F6",
-        borderWidth: 1,
-        borderColor: "#E5E7EB",
-        marginRight: 10,
-        marginBottom: 10,
     },
-    tagText: { fontWeight: "700", color: "#374151" },
-
-    actionRow: {
-        flexDirection: "row",
+    btnSkipText: { fontSize: 13, fontWeight: "600", color: "#6B7280" },
+    btnJoin: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 8,
+        backgroundColor: "#2563EB",
     },
-    actionBtn: {
-        flex: 1,
-        paddingVertical: 16,
-        borderRadius: 18,
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    actionSecondary: {
-        backgroundColor: "#F3F4F6",
-        borderWidth: 1,
-        borderColor: "#E5E7EB",
-        marginRight: 14,
-    },
-    actionSecondaryText: {
-        fontWeight: "800",
-        color: "#111827",
-        fontSize: 16,
-    },
-    actionPrimary: {
-        backgroundColor: "#1677FF",
-    },
-    actionPrimaryText: {
-        fontWeight: "800",
-        color: "#FFFFFF",
-        fontSize: 16,
-    },
-
-    fab: {
-        position: "absolute",
-        right: 24,
-        bottom: 24,
-        width: 58,
-        height: 58,
-        borderRadius: 999,
-        backgroundColor: "#111827",
-        alignItems: "center",
-        justifyContent: "center",
-        ...Platform.select({
-            ios: {
-                shadowColor: "#000",
-                shadowOpacity: 0.25,
-                shadowRadius: 12,
-                shadowOffset: { width: 0, height: 8 },
-            },
-            android: { elevation: 10 },
-            default: {},
-        }),
-    },
-    fabText: {
-        color: "#FFFFFF",
-        fontSize: 30,
-        fontWeight: "900",
-        marginTop: -2,
-    },
+    btnJoinText: { fontSize: 13, fontWeight: "600", color: "#FFFFFF" },
 });

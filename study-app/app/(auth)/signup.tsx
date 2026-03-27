@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button } from 'react-native';
+import { View, TextInput, Button, Text, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from "@/lib/supabase";
 import { styles } from '@/lib/styles';
+import { LinearGradient } from "expo-linear-gradient";
+import { theme } from '@/lib/theme';
 
 const SignUpPage = () => {
     const router = useRouter();
@@ -106,18 +108,26 @@ const SignUpPage = () => {
     };
 
     return (
-        <View style={styles.page}>
+        <LinearGradient
+            colors={theme.gradients.background}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ flex: 1 }}
+        >
+
+        <View style={styles.loginContainer}>
+            <Text style={styles.loginTitle}>Create Account</Text>
             <TextInput 
                 style={styles.input}
                 placeholder="Email"
-                placeholderTextColor={styles.input.color}
+                placeholderTextColor={styles.placeholderText.color}
                 value={email}
                 onChangeText={handleEmail}
             />
             <TextInput
                 style={styles.input}
                 placeholder="Password"
-                placeholderTextColor={styles.input.color}
+                placeholderTextColor={styles.placeholderText.color}
                 value={password}
                 onChangeText={handlePassword}
                 secureTextEntry
@@ -125,7 +135,7 @@ const SignUpPage = () => {
             <TextInput
                 style={styles.input}
                 placeholder="Confirm Password"
-                placeholderTextColor={styles.input.color}
+                placeholderTextColor={styles.placeholderText.color}
                 value={confirmPassword}
                 onChangeText={handleConfirmPassword}
                 secureTextEntry
@@ -133,37 +143,47 @@ const SignUpPage = () => {
             <TextInput
                 style={styles.input}
                 placeholder="University"
-                placeholderTextColor={styles.input.color}
+                placeholderTextColor={styles.placeholderText.color}
                 value={university}
                 onChangeText={handleUniversity}
             />
             <TextInput
                 style={styles.input}
                 placeholder="Major"
-                placeholderTextColor={styles.input.color}
+                placeholderTextColor={styles.placeholderText.color}
                 value={major}
                 onChangeText={handleMajor}
             />
             <TextInput
                 style={styles.input}
                 placeholder="(Optional) First Name"
-                placeholderTextColor={styles.input.color}
+                placeholderTextColor={styles.placeholderText.color}
                 value={firstName}
                 onChangeText={handleFirstName}
             />
             <TextInput
                 style={styles.input}
                 placeholder="(Optional) Last Name"
-                placeholderTextColor={styles.input.color}
+                placeholderTextColor={styles.placeholderText.color}
                 value={lastName}
                 onChangeText={handleLastName}
             />
-            <View style={styles.buttonContainer}>
-                <View style={styles.buttonWrapper}>
-                    <Button title="Submit" onPress={handleSubmit} />
-                </View>
+
+            <View style={{ marginTop: 10 }}>
+                <Pressable onPress={handleSubmit}>
+                    <LinearGradient
+                        colors={theme.gradients.loginButton}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.loginButton}
+                    >    
+                        <Text style={styles.loginButtonText}>Submit</Text>
+                    </LinearGradient>
+                </Pressable>
             </View>
+            
         </View>
+        </LinearGradient>
     )   
 };
 
