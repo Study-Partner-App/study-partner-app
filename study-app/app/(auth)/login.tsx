@@ -80,7 +80,7 @@ const LoginPage = () => {
                         end={{ x: 1, y: 1 }}
                         style={styles.loginButton}
                     >    
-                        <Text style={styles.loginButtonText}>submit</Text>
+                        <Text style={styles.loginButtonText}>Submit</Text>
                     </LinearGradient>
                 </Pressable>
             </View>
