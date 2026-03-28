@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 
-export default function MatchingLayout() {
+export default function SessionsLayout() {
     return(
         <Stack>
             <Stack.Screen name="index" options={{ headerShown: false }} />
