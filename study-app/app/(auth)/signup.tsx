@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { View, TextInput, Button, Text, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from "@/lib/supabase";
-import { styles } from '@/lib/styles';
+import { styles } from "@/app/_styles/globalStyles";
 import { LinearGradient } from "expo-linear-gradient";
 import { theme } from '@/lib/theme';
+import { MultiSelect, Dropdown } from 'react-native-element-dropdown';
 
 const SignUpPage = () => {
     const router = useRouter();
@@ -14,7 +15,8 @@ const SignUpPage = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [university, setUniversity] = useState('');
-    const [major, setMajor] = useState('');
+    const [majorArray, setMajorArray] = useState<string[]>([]);
+    const [year, setYear] = useState('');
 
     const [firstName, setFirstName] = useState('');             // Will be optional
     const [lastName, setLastName] = useState('');               // Will be optional
@@ -22,42 +24,52 @@ const SignUpPage = () => {
     //This is just an array that contains all of the required fields for later checks.
     let reqFields: string[] = ['email', 'pass', 'confirm', 'uni', 'major'];
 
-    //Define functions for handling changes to the text inputs to update the state variables.
-    const handleEmail = (text: string) => {
-        setEmail(text);
-    }
-    const handlePassword = (text: string) => {
-        setPassword(text);
-    }
-    const handleConfirmPassword = (text: string) => {
-        setConfirmPassword(text);
-    }
-    const handleUniversity = (text: string) => {
-        setUniversity(text);
-    }
-    const handleMajor = (text: string) => {
-        setMajor(text);
-    }
-    const handleFirstName = (text: string) => {
-        setFirstName(text);
-    }
-    const handleLastName = (text: string) => {
-        setLastName(text);
-    }
+    // A list of majors for the user to select from a dropdown menu. This is just a hardcoded list of popular majors,
+    // but it could be expanded in the future if we wanted to add more options.
+    const majors = [
+        { label: "Computer Science", value: "Computer Science" },
+        { label: "Math", value: "Math" },
+        { label: "Biology", value: "Biology" },
+        { label: "Chemistry", value: "Chemistry" },
+        { label: "Physics", value: "Physics" },
+        { label: "Economics", value: "Economics" },
+        { label: "Psychology", value: "Psychology" },
+        { label: "Sociology", value: "Sociology" },
+        { label: "Political Science", value: "Political Science" },
+        { label: "History", value: "History" },
+    ];
+
+    // A list of the years a user could be in, such as freshman, sophomore, etc.
+    const years = [
+        { label: "Freshman", value: "Freshman" },
+        { label: "Sophomore", value: "Sophomore" },
+        { label: "Junior", value: "Junior" },
+        { label: "Senior", value: "Senior" },
+        { label: "Graduate Student", value: "Graduate Student" },
+    ];
+
     
     //This will handle submitting the user's sign up information to supabase.
     const handleSubmit = async () => {
 
-        // Save all of the information the user has provided into a map, mapping the fields to the values
+        // Save all of the mandatory information the user has provided into a map, mapping the fields to the values
         let fieldMap = new Map<string, string>([
             ['email', email],               //0
             ['pass', password],             //1
             ['confirm', confirmPassword],   //2
             ['uni', university],            //3
-            ['major', major],               //4
-            ['first', firstName],           //5
-            ['last', lastName]              //6
+            ['first', firstName],           //4
+            ['last', lastName],             //5
+            ['year', year]                  //6
         ]) // These values will be read out from the map in this order.
+
+        // The major field is a little different since it's an array of strings, so we will just check that separately.
+        if(reqFields.includes('major')){
+            if(majorArray.length === 0){
+                alert('Please select a major!');
+                return;
+            }
+        }
 
         // This is the logic that handles required fields and checking presence of values
         for(const [key, value] of fieldMap){
@@ -93,7 +105,8 @@ const SignUpPage = () => {
             id: user?.id,
             email: email,
             university: university,
-            major: major,
+            year: year,
+            major: majorArray,
             first_name: firstName, // These values are just left blank if the user chooses not to fill them in
             last_name: lastName    // meaning that the database will just hold an empty string as their first and last names.
         });
@@ -115,58 +128,81 @@ const SignUpPage = () => {
             style={{ flex: 1 }}
         >
 
-        <View style={styles.loginContainer}>
-            <Text style={styles.loginTitle}>Create Account</Text>
+        <View style={styles.container}>
+            <Text style={styles.hs_title}>Create Account</Text>
             <TextInput 
                 style={styles.input}
                 placeholder="Email"
-                placeholderTextColor={styles.placeholderText.color}
+                placeholderTextColor={theme.palette.subtext}
                 value={email}
-                onChangeText={handleEmail}
+                onChangeText={setEmail}
             />
             <TextInput
                 style={styles.input}
                 placeholder="Password"
-                placeholderTextColor={styles.placeholderText.color}
+                placeholderTextColor={theme.palette.subtext}
                 value={password}
-                onChangeText={handlePassword}
+                onChangeText={setPassword}
                 secureTextEntry
             />
             <TextInput
                 style={styles.input}
                 placeholder="Confirm Password"
-                placeholderTextColor={styles.placeholderText.color}
+                placeholderTextColor={theme.palette.subtext}
                 value={confirmPassword}
-                onChangeText={handleConfirmPassword}
+                onChangeText={setConfirmPassword}
                 secureTextEntry
             />
             <TextInput
                 style={styles.input}
                 placeholder="University"
-                placeholderTextColor={styles.placeholderText.color}
+                placeholderTextColor={theme.palette.subtext}
                 value={university}
-                onChangeText={handleUniversity}
+                onChangeText={setUniversity}
             />
-            <TextInput
-                style={styles.input}
-                placeholder="Major"
-                placeholderTextColor={styles.placeholderText.color}
-                value={major}
-                onChangeText={handleMajor}
+
+            <Dropdown
+                style={styles.dropdownInput}
+                placeholderStyle={styles.dropdownPlaceholder}
+                placeholder="Select Year"
+                data={years}
+                value={year}
+                labelField="label"
+                valueField="value"
+                onChange={function (item: any): void {
+                    setYear(item.value);
+                } }
             />
+
+            <View style={styles.dropdownInput}>
+                <MultiSelect
+                    placeholderStyle={{ color: theme.palette.subtext }}
+                    selectedTextStyle={{ color: theme.palette.text }}
+                    data={majors}
+                    value={majorArray}
+                    labelField="label"
+                    valueField="value"
+                    onChange={ function(item: any): void {
+                        setMajorArray(item);
+                    } }
+                    selectedStyle={{ borderRadius: 12 }}
+                    placeholder="Select Major(s)"
+                />
+            </View>
+
             <TextInput
                 style={styles.input}
                 placeholder="(Optional) First Name"
-                placeholderTextColor={styles.placeholderText.color}
+                placeholderTextColor={theme.palette.subtext}
                 value={firstName}
-                onChangeText={handleFirstName}
+                onChangeText={setFirstName}
             />
             <TextInput
                 style={styles.input}
                 placeholder="(Optional) Last Name"
-                placeholderTextColor={styles.placeholderText.color}
+                placeholderTextColor={theme.palette.subtext}
                 value={lastName}
-                onChangeText={handleLastName}
+                onChangeText={setLastName}
             />
 
             <View style={{ marginTop: 10 }}>
