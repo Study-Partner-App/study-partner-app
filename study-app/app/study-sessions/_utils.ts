@@ -1,6 +1,7 @@
 export type StudySession = {
     id: string,
     creator_id: string,
+    title: string,
     subject: string,
     location: string,
     date: Date,

@@ -176,6 +176,12 @@ export const styles = StyleSheet.create({
     },
 
     // STUDY SESSIONS STYLES
+    title: {
+        fontSize: 20,
+        fontWeight: "700",
+        color: theme.palette.text,
+    },
+
     subject: {
         fontSize: 18,
         fontWeight: "600",

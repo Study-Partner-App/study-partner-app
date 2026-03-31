@@ -11,6 +11,7 @@ import { Checkbox } from 'expo-checkbox';
 interface StudySession {
     // Required fields
     // TODO: For the time values, I would like to implement some sort of drop down menu or time selector in the future, but for now, these will just be text inputs with formatting requirements.
+    title: string;
     startTime: string; // Format as HH:MM
     endTime: string; // Format as HH:MM
     date: string; // Format as YYYY-MM-DD
@@ -27,6 +28,7 @@ const CreateSessionsPage = () => {
     const router = useRouter();
 
     const [sessionInfo, setSessionInfo] = useState<StudySession>({
+        title: '',
         startTime: '',
         endTime: '',
         subject: '',
@@ -71,7 +73,7 @@ const CreateSessionsPage = () => {
     // Verify that all requred fields are present and of the appropiate format, then submit the session info to supabase.
     const handleSubmit = async () => {
         // Check for presence of required fields
-        if (!sessionInfo.startTime || !sessionInfo.endTime || !sessionInfo.date || !sessionInfo.subject || !sessionInfo.location) {
+        if (!sessionInfo.title || !sessionInfo.startTime || !sessionInfo.endTime || !sessionInfo.date || !sessionInfo.subject || !sessionInfo.location) {
             alert('Please fill in all required fields.');
             return;
         }
@@ -97,7 +99,8 @@ const CreateSessionsPage = () => {
         }
 
         const { error: insertSessionError } = await supabase.from('study_sessions').insert({
-            user_id: user.identities[0].id, // Associate the study session with the user's id.
+            creator_id: user.identities[0].id, // Associate the study session with the user's id.
+            title: sessionInfo.title,
             start_time: sessionInfo.startTime,
             end_time: sessionInfo.endTime,
             date: sessionInfo.date,
@@ -130,6 +133,14 @@ const CreateSessionsPage = () => {
             <Text style={styles.hs_title}>Create Study Session</Text>
 
             <View style={styles.input}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Title"
+                    placeholderTextColor={theme.palette.subtext}
+                    value={sessionInfo.title}
+                    onChangeText={(value) => handleChange('title', value)}
+                />
+
                 <TextInput 
                     style={styles.input}
                     placeholder="Start Time (HH:MM)"
