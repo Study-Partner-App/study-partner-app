@@ -136,6 +136,7 @@ export const styles = StyleSheet.create({
         marginTop: 10
     },
 
+    //  LOGIN SCREEN STYLES
     loginButton: {
       paddingVertical: 14,
       borderRadius: 12,
@@ -149,6 +150,7 @@ export const styles = StyleSheet.create({
         fontWeight: "bold",
     },
 
+    // GENERAL INPUT STYLES
     input: {
         borderWidth: 1,
         borderColor: theme.palette.border,
@@ -173,6 +175,32 @@ export const styles = StyleSheet.create({
         color: theme.palette.subtext,
     },
 
+    // STUDY SESSIONS STYLES
+    title: {
+        fontSize: 20,
+        fontWeight: "700",
+        color: theme.palette.text,
+    },
+
+    subject: {
+        fontSize: 18,
+        fontWeight: "600",
+        color: theme.palette.text,
+    },
+
+    datetime: {
+        fontSize: 16,
+        color: theme.palette.subtext,
+        marginTop: 4,
+    },
+
+    description: {
+        fontSize: 12,
+        color: theme.palette.text,
+        marginBottom: 12,
+    },
+
+    // FEATURE STYLES
     featureTitle: {
         fontSize: 24,
         fontWeight: "800",
