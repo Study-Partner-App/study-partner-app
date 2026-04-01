@@ -1,12 +1,17 @@
-import { View, Text, Button, TextInput } from 'react-native';
-import { styles } from '@/lib/styles';
+import { View, Text, Button, TextInput, Pressable } from 'react-native';
+import { Dropdown} from 'react-native-element-dropdown';
+import { styles } from "@/app/_styles/globalStyles";
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { useState } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+import { theme } from '@/lib/theme';
+import { Checkbox } from 'expo-checkbox';
 
 interface StudySession {
     // Required fields
     // TODO: For the time values, I would like to implement some sort of drop down menu or time selector in the future, but for now, these will just be text inputs with formatting requirements.
+    title: string;
     startTime: string; // Format as HH:MM
     endTime: string; // Format as HH:MM
     date: string; // Format as YYYY-MM-DD
@@ -17,22 +22,21 @@ interface StudySession {
     // Optional fields
     description?: string;
     course?: string;
-
-    // TODO: For these two fields, I will need to add some different logic than is used for the other fields, since these values will not be stored as simple strings,
-    // but for now I will just have them as strings until I finish the basic logic for the rest of the fields.
-    announced?: string;
-    maxParticipants?: string;
 }
 
 const CreateSessionsPage = () => {
     const router = useRouter();
 
     const [sessionInfo, setSessionInfo] = useState<StudySession>({
+        title: '',
         startTime: '',
         endTime: '',
         subject: '',
         location: '',
         date: ''});
+
+    const [announced, setAnnouncedState] = useState(false); // State to manage the checkbox input for the announced property.
+    const [maxParticipants, setMaxParticipants] = useState<string>(''); // State to manage the input for the maxParticipants property. This will be a string because it will come from a text input, but I will convert it to a number before submitting to supabase.
 
     // In this function, the field parameter ensures that only valid fields of the StudySession properties can be updated, and the value parameter is just the new value to set.
     const handleChange = (field: keyof StudySession, value: string) => {
@@ -41,6 +45,13 @@ const CreateSessionsPage = () => {
     }
 
 
+    // The subjects that the user may choose from.
+    const subjects = [
+        { label: "Computer Science", value: "Computer Science" },
+        { label: "Math", value: "Math" },
+        { label: "Biology", value: "Biology" },
+        { label: "Chemistry", value: "Chemistry" }
+    ];
 
     // Check formatting for the all fields to ensure the correct format is being used for each field. This will be called in the handleSubmit function before submitting to supabase.
     const checkFormatting = (field: keyof StudySession, value: string): boolean => {
@@ -62,7 +73,7 @@ const CreateSessionsPage = () => {
     // Verify that all requred fields are present and of the appropiate format, then submit the session info to supabase.
     const handleSubmit = async () => {
         // Check for presence of required fields
-        if (!sessionInfo.startTime || !sessionInfo.endTime || !sessionInfo.date || !sessionInfo.subject || !sessionInfo.location) {
+        if (!sessionInfo.title || !sessionInfo.startTime || !sessionInfo.endTime || !sessionInfo.date || !sessionInfo.subject || !sessionInfo.location) {
             alert('Please fill in all required fields.');
             return;
         }
@@ -88,7 +99,8 @@ const CreateSessionsPage = () => {
         }
 
         const { error: insertSessionError } = await supabase.from('study_sessions').insert({
-            user_id: user.identities[0].id, // Associate the study session with the user's id.
+            creator_id: user.identities[0].id, // Associate the study session with the user's id.
+            title: sessionInfo.title,
             start_time: sessionInfo.startTime,
             end_time: sessionInfo.endTime,
             date: sessionInfo.date,
@@ -96,58 +108,78 @@ const CreateSessionsPage = () => {
             location: sessionInfo.location,
             description: sessionInfo.description,
             course: sessionInfo.course,
+            is_announced: announced,
+            max_people: maxParticipants ? parseInt(maxParticipants) : null, // Convert the maxParticipants value to a number before submitting to supabase. If the value is an empty string, submit null to supabase.
         });
 
         if (insertSessionError) {
             alert('Error submitting study session.');
             return;
         }
-
-        // If the submission is successful, send the user back to the study sessions page to see their newly created session.
-        // router.back(); //The router is acting unpredictably and I don't have the time to fix it right now, but ideally, this would just send the user back to the previous page,
-        // which is the study sessions index page.
         
     }
 
     // TODO: For the announced and maxParticipants fields, I will need to implement some different logic to handle the fact that these values will not just be simple strings, but for
     // now, I will just leave them out of the form until I implement that logic.
     return (
-        <View style={styles.page}>
-            <Text style={styles.title}>Create Study Session</Text>
+        <LinearGradient
+            colors={theme.gradients.background}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ flex: 1 }}
+        >
 
-            <View style={styles.inputContainer}>
+            <View style={styles.container}>
+            <Text style={styles.hs_title}>Create Study Session</Text>
+
+            <View style={styles.input}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Title"
+                    placeholderTextColor={theme.palette.subtext}
+                    value={sessionInfo.title}
+                    onChangeText={(value) => handleChange('title', value)}
+                />
+
                 <TextInput 
                     style={styles.input}
                     placeholder="Start Time (HH:MM)"
-                    placeholderTextColor={styles.input.color}
+                    placeholderTextColor={theme.palette.subtext}
                     value={sessionInfo.startTime}
                     onChangeText={(value) => handleChange('startTime', value)}
                 />
                 <TextInput
                     style={styles.input}
                     placeholder="End Time (HH:MM)"
-                    placeholderTextColor={styles.input.color}
+                    placeholderTextColor={theme.palette.subtext}
                     value={sessionInfo.endTime}
                     onChangeText={(value) => handleChange('endTime', value)}
                 />
                 <TextInput
                     style={styles.input}
                     placeholder="Date (YYYY-MM-DD)"
-                    placeholderTextColor={styles.input.color}
+                    placeholderTextColor={theme.palette.subtext}
                     value={sessionInfo.date}
                     onChangeText={(value) => handleChange('date', value)}
                 />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Subject"
-                    placeholderTextColor={styles.input.color}
-                    value={sessionInfo.subject}
-                    onChangeText={(value) => handleChange('subject', value)}
+
+                <Dropdown
+                    style={styles.dropdownInput}
+                    placeholderStyle={styles.dropdownPlaceholder}
+                    placeholder="Select Subject"
+                    data={subjects}
+                    value={sessionInfo.subject} 
+                    labelField="label"
+                    valueField="value"
+                    onChange={function (item: any): void {
+                        handleChange('subject', item.value);
+                    } }
                 />
+
                 <TextInput
                     style={styles.input}
                     placeholder="Location"
-                    placeholderTextColor={styles.input.color}
+                    placeholderTextColor={theme.palette.subtext}
                     value={sessionInfo.location}
                     onChangeText={(value) => handleChange('location', value)}
                 />
@@ -155,26 +187,53 @@ const CreateSessionsPage = () => {
                 <TextInput
                     style={styles.input}
                     placeholder="Description (Optional)"
-                    placeholderTextColor={styles.input.color}
+                    placeholderTextColor={theme.palette.subtext}
                     value={sessionInfo.description}
                     onChangeText={(value) => handleChange('description', value)}
                 />
                 <TextInput 
                     style={styles.input}
                     placeholder="Course (Optional)"
-                    placeholderTextColor={styles.input.color}
+                    placeholderTextColor={theme.palette.subtext}
                     value={sessionInfo.course}
                     onChangeText={(value) => handleChange('course', value)}
+                /> 
+
+                <TextInput
+                    style={styles.input}
+                    placeholder="Max Participants (Optional)"
+                    placeholderTextColor={theme.palette.subtext}
+                    value={maxParticipants}
+                    onChangeText={(value) => setMaxParticipants(value)}
+                    keyboardType="numeric" // This will bring up the numeric keyboard on mobile devices to make it easier for the user to input a number.
                 />
 
-            </View>
-
-            <View style={styles.buttonContainer}>
-                <View style={styles.buttonWrapper}>
-                    <Button title="Submit" onPress={handleSubmit} />
+                <View style={styles.input}>
+                    <Text>Announce Study Session</Text>
+                    <Checkbox
+                        value={announced}
+                        onValueChange={(value) => {
+                            setAnnouncedState(value);
+                        }}
+                    />
+                </View>
+                
+                <View style={{ marginTop: 20 }}>
+                    <Pressable onPress={handleSubmit}>
+                        <LinearGradient
+                            colors={theme.gradients.submitButton}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={styles.loginButton}
+                        >    
+                            <Text style={styles.loginButtonText}>Submit</Text>
+                        </LinearGradient>
+                    </Pressable>
+                </View>
                 </View>
             </View>
-        </View>
+        </LinearGradient>
+
     );
 };
 
