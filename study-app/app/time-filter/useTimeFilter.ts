@@ -80,7 +80,7 @@ export const dateToHhmm = (d: Date): string => {
 /**
  * Validate the pair (start, end):
  * Both must be on 30-minute boundaries
- * end > start (same-day, no midnight-crossing in this version)
+ * end > start (same-day, no midnight crossing in this version)
  * Duration must be a multiple of 30 minutes
  *
  * should return: { valid: boolean, error?: string }
@@ -298,10 +298,16 @@ export async function fetchAndFilterByTime(
   selectedSubject?: string
 ): Promise<StudySession[]> {
 
+
   /* Helper for date
    * Format a Date as "YYYY-MM-DD"
-   */
-  const toYMD = (d: Date) => d.toISOString().split('T')[0];
+   */ //This needs to match supabase data.
+  const toYMD = (d: Date) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   /**
    * Get a date string offset by N days from today.
@@ -322,214 +328,97 @@ export async function fetchAndFilterByTime(
    * and join profile information.
    */
   // Step 1: Fetch data from Supabase
-  let { data, error } = await supabase
+  const now = new Date()
+  const today = toYMD(now);
+
+  let fromDate = today;
+  let toDate = today;
+
+  if (filter == 'next_24_hours') {
+    fromDate = today;
+    toDate = offsetYMD(1); // This is for today and tomorrow
+  }
+
+  if (filter == 'this_week') {
+    fromDate = today;
+    toDate = offsetYMD(7); // This is for sessions this week
+  }
+
+  //Supabase logic
+
+  let query = supabase
     .from('study_sessions')
     .select(`
-      id,
-      date,
-      start_time,
-      end_time,
-      subject,
-      course,
-      location,
-      created_at,
-      profiles (
-        email,
-        first_name,
-        last_name
-      )
-    `)
-  /**
- * If there was a database error or no data returned,
- * we log it and just return an empty array.
- */
-  // Step 1b: If database is empty or error occurs, use temporary hardcoded data
-  let sessions: StudySession[] = []
-
-  if (error || !data || data.length === 0) {
-    console.warn('Supabase returned empty or error. Using temporary test data.')
-
-
-    const today = toYMD(new Date());
-    const tomorrow = offsetYMD(1);
-    const plus3 = offsetYMD(3);
+  id,
+  created_at,
+  date,
+  start_time,
+  end_time,
+  subject,
+  course,
+  location,
+  is_announced,
+  max_people,
+  creator_id,
+  title,
+  description,
+  profiles (
+    first_name,
+    last_name,
+    email
+  )
+`)
+    .eq('is_announced', true)
+    .gte('date', fromDate)
+    .lte('date', toDate)
+    .order('date', { ascending: true })
+    .order('start_time', { ascending: true });
 
 
-    sessions = [
-      {
-        id: '1',
-        date: today, // today
-        start_time: '15:00', // 2:00 PM today
-        end_time: '17:00',
-        subject: 'Computer Science',
-        course: 'CS2003',
-        location: 'McFarlin Library',
-        created_at: new Date().toISOString(),
-        profiles: { email: 'alice@utulsa.edu', first_name: 'Alice', last_name: 'Smith' }
-      },
-      {
-        id: '2',
-        date: today,
-        start_time: '20:00', // 8:00 PM today
-        end_time: '21:00',
-        subject: 'Math',
-        location: 'Keplinger Hall',
-        created_at: new Date().toISOString(),
-        profiles: { email: 'bob@utulsa.edu', first_name: 'Bob', last_name: 'Jones' }
-      },
-      {
 
-        id: '3',
-        date: tomorrow,
-        start_time: '08:00', //8:00 AM tomorrow
-        end_time: '09:30',
-        subject: 'Biology',
-        course: 'BIOL1603',
-        location: 'Oliphant Hall',
-        created_at: new Date().toISOString(),
-        profiles: { email: 'cory@utulsa.edu', first_name: 'Cory', last_name: 'Lee' },
-      },
-
-      {
-        id: '4',
-        date: tomorrow,
-        start_time: '19:00', // 7:00 PM tomorrow
-        end_time: '20:30',
-        subject: 'Computer Science',
-        course: 'CS2123',
-        location: 'Library',
-        created_at: new Date().toISOString(),
-        profiles: { email: 'dana@utulsa.edu', first_name: 'Dana', last_name: 'Kim' },
-      },
-
-      {
-        id: '5',
-        date: plus3,
-        start_time: '13:30', // 1:30 PM in 3 days
-        end_time: '15:00',
-        subject: 'Chemistry',
-        course: 'CHEM3013',
-        location: 'Student Union',
-        created_at: new Date().toISOString(),
-        profiles: { email: 'erin@utulsa.edu', first_name: 'Erin', last_name: 'Johnson' },
-      },
-      {
-
-        id: '6',
-        date: plus3,
-        start_time: '20:00', // 8:00 PM in 3 days
-        end_time: '21:30',
-        subject: 'Math',
-        course: 'MATH2024',
-        location: 'Keplinger Hall',
-        created_at: new Date().toISOString(),
-        profiles: { email: 'frank@utulsa.edu', first_name: 'Frank', last_name: 'Olsen' },
-      },
-
-      {
-        id: '7', // Same time and subject as id 1. Different course.
-        date: today,
-        start_time: '15:00',
-        end_time: '17:00',
-        subject: 'Computer Science',
-        course: 'CS2123',
-        location: 'Keplinger Hall',
-        created_at: new Date().toISOString(),
-        profiles: { email: 'katy@utulsa.edu', first_name: 'Katy', last_name: 'Jones' },
-      },
-    ];
-
-  } else {
-    sessions = data as unknown as StudySession[]
-  }
-
-  /**
-   * Current date and time used for comparison
-   */
-  const now = new Date()
-
-  /**
-   * Step 2: Filter sessions in the memory.
-   *
-   * Convert each session's date + start_time
-   * into a real JavaScript Date object
-   * so we can compare it against the data object "now".
-   */
-
-  const timeFiltered = sessions.filter((session) => {
-    //Convert date + start_time into a JS Date
-
-    //Break apart YYYY-MM-DD
-    const [year, month, day] = session.date.split('-').map(Number)
-
-    //Break apart HH:MM
-    const [hour, minute] = session.start_time.split(':').map(Number)
-
-    //Combine data and time into one object. Need (month - 1) due to JS indexes
-    const start = new Date(year, month - 1, day, hour, minute)
-
-    /**
-     * Step 3: Apply selected time filter
-     */
-    switch (filter) {
-      //Filter the sessions happening today
-      case 'today': {
-        const startOfDay = new Date(now)
-        startOfDay.setHours(0, 0, 0, 0)
-
-        const endOfDay = new Date(startOfDay)
-        endOfDay.setDate(startOfDay.getDate() + 1)
-
-        return start >= startOfDay && start < endOfDay
-      }
-      //Filter sessions happening in the next 24 hours
-      case 'next_24_hours': {
-        const next24 = new Date(now)
-        next24.setHours(now.getHours() + 24)
-
-        return start >= now && start <= next24
-      }
-      //Filter sessions happening within the next 7 days
-      case 'this_week': {
-        const endOfWeek = new Date(now)
-        endOfWeek.setDate(now.getDate() + 7)
-
-        return start >= now && start <= endOfWeek
-      }
-
-      default:
-        return true
-    }
-  })
-
-  //Apply priority scoring and sort
-  //Filter course if provided
-  let filtered = timeFiltered;
-
-  if (selectedCourse) {
-    filtered = filtered.filter(
-      (s) => s.course?.toLowerCase() === selectedCourse.toLowerCase()
-    );
-  }
-
-  //Filter subject (required)
+  // Subject filter (required)
   if (selectedSubject) {
-    filtered = filtered.filter(
-      (s) => s.subject?.toLowerCase() === selectedSubject.toLowerCase()
-    );
+    query.eq('subject', selectedSubject);
+    // Subjects array (I'm not 100% sure how subjects are stored- will delete if not needed)
+    //query = query.contains('subjects', [selectedSubject]);
   }
 
+  // Course filter (optional)
+  if (selectedCourse) {
+    query = query.eq('course', selectedCourse);
+  }
 
-  //CLOCK-TIME-OF-DAY filtering
-  // Keep only sessions whose time-of-day overlaps the selected window
+  const { data, error } = await query;
+
+  // Error check
+  if (error) {
+  console.error('Supabase fetch error');
+  console.error('Message:', error.message);
+  console.error('Details:', error.details);
+  console.error('Hint:', error.hint);
+  console.error('Code:', error.code);
+  return [];
+}
+
+  const sessions = (data ?? []) as unknown as StudySession[];
+
+ 
+
+  // Time filtering
+  const next24 = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+  let filtered = sessions; // Database will do date filtering. Doing it again in filter system might mess it up.
+
+  // Time of day overlap filter
+
   if (selectedStart && selectedEnd) {
     filtered = filtered.filter((s) =>
       overlaps(s.start_time, s.end_time, selectedStart, selectedEnd)
     );
   }
 
-  //Now apply scoring only for sorting
-  const scoredSessions = filtered
+  // Priority scoring
+  return filtered
     .map((session) => ({
       ...session,
       score: scoreSession(
@@ -541,6 +430,4 @@ export async function fetchAndFilterByTime(
       ),
     }))
     .sort((a, b) => b.score - a.score);
-
-  return scoredSessions
 }

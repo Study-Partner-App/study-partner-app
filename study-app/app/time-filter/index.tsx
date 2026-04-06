@@ -55,7 +55,7 @@ const courseMatches = (course: string, query: string) => {
   if (c.startsWith(q)) return true;
   if (c.includes(q)) return true;
 
-  //Allow 1 missing or transposed char for short queries
+  //Allow 1 missing char for short queries
   if (q.length >= 2) {
     // transposition check (e.g., "C1S01" vs "CS101")
     for (let i = 0; i < q.length - 1; i++) {
@@ -250,9 +250,15 @@ export default function Index() {
 
   // -------------------- Fetch Logic --------------------
   const loadSessions = async () => {
-    if (!selectedSubject) return;
-
+    // Always reset visible state first
+    setSessions([]);
+    setGroupedSessions({});
     setLoading(true);
+
+    if (!selectedSubject) {
+      setLoading(false);
+      return;
+    }
 
     const grouped = await getSessionsGroupedBySlot(
       timeFilter,
@@ -266,7 +272,6 @@ export default function Index() {
 
     setGroupedSessions(grouped);
     setSessions(flattened);
-
     setLoading(false);
   };
 
@@ -420,6 +425,12 @@ export default function Index() {
               />
             </View>
           </View>
+
+          {timeError && (
+            <Text style={{ color: palette.danger, marginTop: 4 }}>
+              {timeError}
+            </Text>
+          )}
 
           {/* Section: Search Filters */}
           <Text style={styles.sectionHeader}>Search Filters</Text>
