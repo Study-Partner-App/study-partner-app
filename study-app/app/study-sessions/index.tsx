@@ -1,10 +1,12 @@
-import { View, Text, Button, Pressable } from 'react-native';
+import { View, Text, Pressable, } from 'react-native';
 import { styles } from "@/app/_styles/globalStyles";
 import { Href, useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '@/lib/theme';
+import SessionCard from './_SessionCard';
+import SessionScreen from './_SessionScreen';
 import { StudySession, User } from './_utils';
 
 export default function SessionPage() {
@@ -21,10 +23,13 @@ export default function SessionPage() {
     const [loading, setLoading] = useState(true);
     const [sessions, setSessions] = useState<StudySession[]>([]);
     const [fetchLoading, setFetchLoading] = useState(false);
+    const [userName, setUserName] = useState("");
+    const [loadedSessions, setLoadedSessions] = useState(false);
 
     // Load the current user in order to retrieve their sessions.
     useEffect(() => {
         const loadUser = async () => {
+            setLoading(true);
             const { data: {user} } = await supabase.auth.getUser();
             if(user) {
                 const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).single();
@@ -32,29 +37,31 @@ export default function SessionPage() {
                     console.error("Error fetching user profile:", error);
                 } else {
                     setCurrentUser(data);
+                    setUserName(data.first_name + " " + data.last_name);
                 }
             }
             setLoading(false);
         }
         loadUser();
-    }, []);
+        }, []);
+
+    const fetchSessions = async () => {
+        if(!currentUser?.id || fetchLoading || loadedSessions) return;
+
+        setFetchLoading(true);
+        const { data, error } = await supabase.from("study_sessions").select("*").eq("creator_id", currentUser.id);
+        if (error) {
+            console.error("Error fetching sessions:", error);
+        } 
+        else if (data) 
+        {
+            setSessions((prev: any) => [...prev, ...data]);
+            
+        }
+    };
 
     // Fetch the sessions for the current user and place them into the sessions array.
     useEffect(() => {
-        const fetchSessions = async () => {
-            if(!currentUser?.id) return;
-
-            setFetchLoading(true);
-            const { data, error } = await supabase.from("study_sessions").select("*").eq("creator_id", currentUser.id);
-            if (error) {
-                console.error("Error fetching sessions:", error);
-            } else {
-                // This is intended to place each of the individual session objects into the sessions array, but I'm not sure if setSessions does that on its own.
-                // TODO: Implement a way to append each session to the sessions array.
-                setSessions(data);
-            }
-            setFetchLoading(false);
-        };
         fetchSessions();
     }, [currentUser?.id]);
 
@@ -66,8 +73,8 @@ export default function SessionPage() {
                     style={{ flex: 1 }}
                 >
 
-            <View style={styles.container}>
-            <Text style={styles.hs_title}>Study Sessions</Text>
+            <View style={styles.session_container}>
+                <Text style={styles.session_title}>Study Sessions</Text>
                 <Text>Here is where you view and create your study sessions.</Text>
                 
                 <Pressable
@@ -85,7 +92,8 @@ export default function SessionPage() {
                             <Text style={styles.featureText}>{create.title}</Text>
                     </LinearGradient>
                 </Pressable>
-
+                <Text style={styles.session_subtitle}>My Sessions</Text>
+                <SessionScreen sessions={sessions} fetchLoading={fetchLoading} creatorName={userName} fetchSessions={fetchSessions}/>
             </View>
 
         </LinearGradient>
