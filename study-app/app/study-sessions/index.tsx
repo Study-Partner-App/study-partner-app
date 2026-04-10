@@ -5,7 +5,6 @@ import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '@/lib/theme';
-import SessionCard from './_SessionCard';
 import SessionScreen from './_SessionScreen';
 import { StudySession, User } from './_utils';
 
@@ -56,7 +55,7 @@ export default function SessionPage() {
         else if (data) 
         {
             setSessions((prev: any) => [...prev, ...data]);
-            
+            setLoadedSessions(true);
         }
     };
 

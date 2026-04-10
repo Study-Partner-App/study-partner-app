@@ -9,13 +9,17 @@ export default function SessionCard({ session, creatorName }: { session: StudySe
         return null;
     }
 
+    let sessionId : string = session.id;
+    
+    console.log("SessionCard received sessionId:", sessionId);
+
     return (
         <TouchableOpacity
             style={styles.card}
             onPress={() => 
                 router.push({
                     pathname: "/study-sessions/session_details",
-                    params: { sessionId: session.id }
+                    params: { sessionId: sessionId }
                 })
             }   
         >

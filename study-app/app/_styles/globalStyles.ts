@@ -196,6 +196,12 @@ export const styles = StyleSheet.create({
         marginBottom: 20,
     },
 
+    session_text: {
+        fontSize: 16,
+        color: theme.palette.text,
+        marginBottom: 12,
+    },
+
     session_card_title: {
         fontSize: 20,
         fontWeight: "700",
