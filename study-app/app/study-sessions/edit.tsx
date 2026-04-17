@@ -9,7 +9,6 @@ import { theme } from '@/lib/theme';
 import { Checkbox } from 'expo-checkbox';
 import { StudySession } from './_utils';
 
-
 // IStudySession is an interface to contain data received in string format from the input fields,
 // while the StudySession type from _utils is the exact data type that we retrieve from Supabase.
 interface IStudySession {
@@ -270,8 +269,8 @@ const EditSessionPage = () => {
                         </LinearGradient>
                     </Pressable>
                 </View>
-                </View>
             </View>
-        </LinearGradient>
+        </View>
+    </LinearGradient>
     )
 }
