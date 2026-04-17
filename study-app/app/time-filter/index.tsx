@@ -29,6 +29,7 @@ import {
 import CourseDropdown from './CourseDropdown';
 
 //-----------------------Load courses (will probably need to load from some separate file later)---------------------------------
+
 const COURSES: string[] = [
   'CS2003',
   'BIOL1603',
@@ -43,6 +44,36 @@ const COURSES: string[] = [
   'CHEM210',
   'PHYS121',
 ];
+
+const COURSES_BY_SUBJECT: Record<string, string[]> = {
+"Computer Science": [
+  "CS 2003",
+  "CS 2123",
+  "CS 3003",
+  "CS 3013",
+  "CS 4333",
+  "CS 4513"
+],
+"Math": [
+  "MATH 2014",
+  "MATH 2024",
+  "MATH 2073",
+  "MATH 3073",
+  "MATH 4503"
+],
+"Biology": [
+  "BIOL 1603",
+  "BIOL 1234",
+  "BIOL 2603"
+],
+"Chemistry": [
+  "CHEM 110",
+  "CHEM 210",
+  "CHEM 3013"
+],
+};
+
+
 
 const normalize = (s: string) =>
   s.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
@@ -183,8 +214,58 @@ function Pill({ text, tone = 'neutral' }: { text: string; tone?: 'neutral' | 'br
   );
 }
 
+// Time-formatting helper (for displaying the times)
+const formatTimeRange = (start?: string, end?: string) => {
+  if (!start || !end) return '';
+
+  const parse = (t: string) => {
+    const [h, m] = t.split(':').map(Number);
+    const date = new Date();
+    date.setHours(h, m, 0, 0);
+    return date;
+  };
+
+  const startDate = parse(start);
+  const endDate = parse(end);
+
+  // START HERE
+
+  const startStr = startDate.toLocaleTimeString(undefined, {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+  const endStr = endDate.toLocaleTimeString(undefined, {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+  // Remove AM and PM from start time if both are same
+
+  const startClean = startStr.replace(/\s?(AM|PM)/, '');
+  const endClean = endStr.replace(/\s?(AM|PM)/, '');
+  const endPeriod = endStr.match(/(AM|PM)/)?.[0] ?? '';
+
+  return `${startClean} – ${endClean ?? endStr} ${endPeriod}`;
+};
+
 // ----- Session Card -----
 function SessionCard({ s }: { s: any }) {
+
+  // Date formatter (helper for printing full date in sessioncard)
+  const formatSessionDate = (dateStr?: string) => {
+    if (!dateStr) return '';
+
+    const date = new Date(`${dateStr}T00:00:00`);
+    return date.toLocaleDateString(undefined, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
   const initials = `${(s?.profiles?.first_name || '?')[0] || ''}${(s?.profiles?.last_name || '?')[0] || ''}`.toUpperCase();
   return (
     <View style={[{ backgroundColor: palette.surface, borderRadius: 12, padding: 14, marginTop: 12, borderWidth: 1, borderColor: palette.border }, shadowStyle]}>
@@ -204,9 +285,24 @@ function SessionCard({ s }: { s: any }) {
         {!!s.course && <Pill text={s.course} />}
       </View>
 
+
       {/* Meta */}
-      <Text style={{ color: palette.subtext, marginBottom: 4 }}>🕒 {s.start_time} – {s.end_time}</Text>
-      <Text style={{ color: palette.subtext }}>📍 {s.location}</Text>
+      {!!s.date && (
+        <Text style={{ color: palette.subtext, marginBottom: 4 }}>
+          📅 {formatSessionDate(s.date)}
+        </Text>
+      )}
+
+
+      <Text style={{ color: palette.subtext, marginBottom: 4 }}>
+        🕒 {formatTimeRange(s.start_time, s.end_time)}
+      </Text>
+
+
+      <Text style={{ color: palette.subtext }}>
+        📍 {s.location}
+      </Text>
+
     </View>
   );
 }
@@ -248,6 +344,11 @@ export default function Index() {
     subject.toLowerCase().includes(subjectSearch.toLowerCase())
   );
 
+  // DON"T LOAD COURSES INITALLY
+  const availableCourses = selectedSubject
+  ? COURSES_BY_SUBJECT[selectedSubject] ?? []
+  : [];
+
   // -------------------- Fetch Logic --------------------
   const loadSessions = async () => {
     // Always reset visible state first
@@ -288,6 +389,10 @@ export default function Index() {
   useEffect(() => {
     loadSessions();
   }, []);
+
+  useEffect(() => {
+  setSelectedCourse('');
+}, [selectedSubject]);
 
   //-------------------- Helpers for making sure end times don't break 30-minute logic--------------------
   //Time math helpers (24h circular clock)
@@ -455,7 +560,7 @@ export default function Index() {
             label="Course"
             value={selectedCourse}
             onChange={setSelectedCourse}
-            courses={COURSES}
+            courses={availableCourses}
             courseMatches={courseMatches}
             palette={palette}
           />

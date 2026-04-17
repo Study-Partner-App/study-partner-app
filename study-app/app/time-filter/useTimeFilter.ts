@@ -368,7 +368,6 @@ export async function fetchAndFilterByTime(
     email
   )
 `)
-    .eq('is_announced', true)
     .gte('date', fromDate)
     .lte('date', toDate)
     .order('date', { ascending: true })

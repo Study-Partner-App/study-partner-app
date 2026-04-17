@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   Modal,
   View,
@@ -8,6 +8,7 @@ import {
   StyleSheet,
   FlatList,
 } from 'react-native';
+
 
 type Props = {
   label?: string;
@@ -29,26 +30,50 @@ export default function CourseDropdown({
   palette,
 }: Props) {
   const [visible, setVisible] = useState(false);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(value);
+
+  useEffect(() => {
+    setQuery(value);
+  }, [value]);
 
   const filtered = useMemo(() => {
     return courses.filter((c) => courseMatches(c, query)).slice(0, 50);
   }, [courses, query, courseMatches]);
 
   const open = () => {
-    setQuery('');
+    //setQuery('');
     setVisible(true);
   };
 
   const close = () => {
+    // Commit typed value if user didn’t click a suggestion
+    onChange(normalizeCourse(query.trim()));
+    setVisible(false);
+  };
+  ``
+
+  const select = (course: string) => {
+    setQuery(course);
+    onChange(course);
     setVisible(false);
   };
 
-  const select = (course: string) => {
-    onChange(course);
-    setVisible(false);
-    setQuery('');
-  };
+  // Normalize input
+  const normalizeCourse = (s: string) =>
+    s
+      .toUpperCase()
+      .replace(/\s+/g, ' ') // Strip weird chars
+      .trim();
+
+
+  // Done button helper
+  const handleDone = () => {
+  const formatted = normalizeCourse(query);
+  onChange(formatted); // Value would stay as subject course number
+  setQuery(formatted);
+  setVisible(false);
+};
+
 
   return (
     <View style={{ marginBottom: 12 }}>
@@ -87,7 +112,9 @@ export default function CourseDropdown({
             <TextInput
               placeholder={placeholder}
               value={query}
-              onChangeText={setQuery}
+              onChangeText={(text) => {
+                setQuery(text);
+              }}
               style={[styles.input, { borderColor: palette.border }]}
               placeholderTextColor={palette.subtext}
               autoCapitalize="characters"
@@ -123,9 +150,27 @@ export default function CourseDropdown({
               )}
             </View>
 
-            <TouchableOpacity style={{ marginTop: 16, alignItems: 'center' }} onPress={close}>
-              <Text style={{ color: palette.danger, fontWeight: '600' }}>Cancel</Text>
-            </TouchableOpacity>
+            {/* Done and cancel buttons */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 }}>
+              <TouchableOpacity onPress={() => setVisible(false)}>
+                <Text style={{ color: palette.danger, fontWeight: '600' }}>
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  onChange(normalizeCourse(query.trim()));
+                  setVisible(false);
+                }}
+              >
+
+                {/* TODO: Add clear button */}
+                <Text style={{ color: palette.primary, fontWeight: '700' }}>
+                  Done
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
