@@ -43,6 +43,11 @@ export const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center"
     },
+
+    buttonsSameRow: {
+        flexDirection: "row",
+        gap: 10,
+    },
     
     addFriendButton: {
         backgroundColor: "#4CAF50",
@@ -50,6 +55,13 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 12,
         borderRadius: 6,
     }, 
+
+    rejectFriendButton: {
+        backgroundColor: "#f44336",
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 6,
+    },
 
     // HOME SCREEN STYLES
     hs_container: {
