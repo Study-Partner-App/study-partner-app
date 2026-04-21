@@ -68,7 +68,9 @@ const COURSES_BY_SUBJECT: Record<string, string[]> = {
 ],
 "Chemistry": [
   "CHEM 110",
+  "CHEM 1113",
   "CHEM 210",
+  "CHEM 2113",
   "CHEM 3013"
 ],
 };

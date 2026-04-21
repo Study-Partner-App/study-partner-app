@@ -24,7 +24,7 @@ export default function CourseDropdown({
   label = 'Course',
   value,
   onChange,
-  placeholder = 'Search courses…',
+  placeholder = 'Type a course (e.g. CS 2003) or select below',
   courses,
   courseMatches,
   palette,
@@ -68,20 +68,29 @@ export default function CourseDropdown({
 
   // Done button helper
   const handleDone = () => {
-  const formatted = normalizeCourse(query);
-  onChange(formatted); // Value would stay as subject course number
-  setQuery(formatted);
-  setVisible(false);
-};
+    const formatted = normalizeCourse(query);
+    onChange(formatted); // Value would stay as subject course number
+    setQuery(formatted);
+    setVisible(false);
+  };
+
+  // Helper for clearing course dropdown
+  const handleClear = () => {
+    setQuery('');
+    onChange(''); // should clear the course
+    setVisible(false);
+  };
 
 
   return (
     <View style={{ marginBottom: 12 }}>
       {!!label && (
         <Text style={{ fontWeight: '600', marginBottom: 6, color: palette.text }}>
-          {label} <Text style={{ color: palette.subtext }}>(optional)</Text>
+          {label}{' '}
+          <Text style={{ color: palette.subtext }}>(optional)</Text>
         </Text>
       )}
+
       {/* Field-looking button to open modal */}
       <TouchableOpacity
         onPress={open}
@@ -98,28 +107,44 @@ export default function CourseDropdown({
         <Text style={{ color: value ? palette.text : palette.subtext }}>
           {value || 'Select a course…'}
         </Text>
-        <Text style={{ position: 'absolute', right: 12, color: palette.subtext }}>⌄</Text>
+        <Text style={{ position: 'absolute', right: 12, color: palette.subtext }}>
+          ⌄
+        </Text>
       </TouchableOpacity>
 
       {/* Modal */}
       <Modal visible={visible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContainer, { borderColor: palette.border }]}>
-            <Text style={{ fontWeight: '700', fontSize: 16, marginBottom: 10, color: palette.text }}>
+            <Text
+              style={{
+                fontWeight: '700',
+                fontSize: 16,
+                marginBottom: 10,
+                color: palette.text,
+              }}
+            >
               Select Course
             </Text>
 
             <TextInput
               placeholder={placeholder}
               value={query}
-              onChangeText={(text) => {
-                setQuery(text);
-              }}
+              onChangeText={setQuery}
               style={[styles.input, { borderColor: palette.border }]}
               placeholderTextColor={palette.subtext}
               autoCapitalize="characters"
               autoCorrect={false}
             />
+            <Text
+              style={{
+                fontSize: 12,
+                color: palette.subtext,
+                marginBottom: 8,
+              }}
+            >
+              You can type a course code or choose one from the list
+            </Text>
 
             <View style={{ maxHeight: 300 }}>
               {filtered.length > 0 ? (
@@ -134,9 +159,11 @@ export default function CourseDropdown({
                       style={{
                         paddingVertical: 12,
                         paddingHorizontal: 8,
-                        borderBottomWidth: index < filtered.length - 1 ? StyleSheet.hairlineWidth : 0,
+                        borderBottomWidth:
+                          index < filtered.length - 1
+                            ? StyleSheet.hairlineWidth
+                            : 0,
                         borderBottomColor: palette.border,
-                        borderRadius: 8,
                       }}
                     >
                       <Text style={{ color: palette.text }}>{item}</Text>
@@ -144,30 +171,42 @@ export default function CourseDropdown({
                   )}
                 />
               ) : (
-                <Text style={{ marginTop: 10, fontStyle: 'italic', color: palette.subtext }}>
+                <Text
+                  style={{
+                    marginTop: 10,
+                    fontStyle: 'italic',
+                    color: palette.subtext,
+                  }}
+                >
                   No courses found
                 </Text>
               )}
             </View>
 
-            {/* Done and cancel buttons */}
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 }}>
-              <TouchableOpacity onPress={() => setVisible(false)}>
-                <Text style={{ color: palette.danger, fontWeight: '600' }}>
-                  Cancel
-                </Text>
-              </TouchableOpacity>
+            {/* Footer actions- handle done and clear buttons */}
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: 16,
+              }}
+            >
+              {value !== '' && (
+                <TouchableOpacity onPress={handleClear}>
+                  <Text
+                    style={{ color: palette.danger, fontWeight: '600' }}
+                  >
+                    Clear
+                  </Text>
+                </TouchableOpacity>
+              )}
 
-              <TouchableOpacity
-                onPress={() => {
-                  onChange(normalizeCourse(query.trim()));
-                  setVisible(false);
-                }}
-              >
-
-                {/* TODO: Add clear button */}
-                <Text style={{ color: palette.primary, fontWeight: '700' }}>
-                  Done
+              <TouchableOpacity onPress={handleDone}>
+                <Text
+                  style={{ color: palette.primary, fontWeight: '700' }}
+                >
+                  Apply course
                 </Text>
               </TouchableOpacity>
             </View>
@@ -177,7 +216,6 @@ export default function CourseDropdown({
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
