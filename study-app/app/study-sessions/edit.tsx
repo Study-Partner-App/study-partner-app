@@ -3,7 +3,7 @@ import { Dropdown} from 'react-native-element-dropdown';
 import { styles } from "@/app/_styles/globalStyles";
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '@/lib/theme';
 import { Checkbox } from 'expo-checkbox';
