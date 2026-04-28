@@ -34,14 +34,6 @@ export default function SessionDetails() {
         }
     }, [sessionId]);
 
-    const handleEditSession = () => {
-
-        router.push({
-            pathname: "../study-sessions/edit",
-            params: { sessionId: sessionId }
-        })
-    }
-
     if(loading) {
         return (
             <LinearGradient
@@ -85,11 +77,23 @@ export default function SessionDetails() {
                 <Text style={styles.session_subtitle}>Location: {session.location}</Text>
                 <Text style={styles.session_text}>Description: {session.description}</Text>
             </View>
-            <View style={styles.container}>
-                <Pressable onPress={() => handleEditSession()}>
-                    <Text style={styles.session_text}>Edit Session</Text>
-                </Pressable>
-            </View>
+            <View style={{ marginTop: 20 }}>
+                    <Pressable onPress={() => 
+                        router.push({
+                            pathname: "/study-sessions/edit",
+                            params: { sessionId:sessionId }
+                        })
+                    }>
+                        <LinearGradient
+                            colors={theme.gradients.submitButton}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={styles.loginButton}
+                        >    
+                            <Text style={styles.loginButtonText}>Edit</Text>
+                        </LinearGradient>
+                    </Pressable>
+                </View>
         </LinearGradient>
     )
 }

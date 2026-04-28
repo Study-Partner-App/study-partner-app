@@ -11,7 +11,7 @@ export default function SessionCard({ session, creatorName }: { session: StudySe
 
     let sessionId : string = session.id;
     
-    console.log("SessionCard received sessionId:", sessionId);
+    //console.log("SessionCard received sessionId:", sessionId);
 
     return (
         <TouchableOpacity
