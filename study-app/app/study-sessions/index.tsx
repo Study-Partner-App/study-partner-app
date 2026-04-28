@@ -15,6 +15,7 @@ export default function SessionPage() {
         route: Href
     }
     const create: CardNav = { title: "Create Study Session", icon: "➕", route: '/study-sessions/create_sessions' };
+    const commitments: CardNav = { title: "View Joined Sessions", icon: "📚", route: '/study-sessions/joined_sessions'}
 
     const router = useRouter();
 
@@ -74,7 +75,6 @@ export default function SessionPage() {
 
             <View style={styles.session_container}>
                 <Text style={styles.session_title}>Study Sessions</Text>
-                <Text>Here is where you view and create your study sessions.</Text>
                 
                 <Pressable
                     key={create.title}
@@ -89,6 +89,21 @@ export default function SessionPage() {
                     >
                             <Text style={styles.featureIcon}>{create.icon}</Text>
                             <Text style={styles.featureText}>{create.title}</Text>
+                    </LinearGradient>
+                </Pressable>
+                <Pressable
+                    key={commitments.title}
+                    onPress={() => router.push(commitments.route)}
+                    style={{ marginBottom: 16, width: "48%"}}
+                >
+                    <LinearGradient
+                        colors= {["#67b3e9", "#f6eff3"]}
+                        start= {{ x:0, y:0 }}
+                        end= {{ x:1, y:1 }}
+                        style={styles.featureCard}
+                    >
+                        <Text style={styles.featureIcon}>{commitments.icon}</Text>
+                        <Text style={styles.featureText}>{commitments.title}</Text>
                     </LinearGradient>
                 </Pressable>
                 <Text style={styles.session_subtitle}>My Sessions</Text>

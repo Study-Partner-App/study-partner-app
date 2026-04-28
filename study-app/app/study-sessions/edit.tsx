@@ -27,8 +27,7 @@ interface IStudySession {
     course?: string;
 }
 
-const EditSessionPage = () => {
-    const router = useRouter();
+export default function EditSessionPage() {
 
     const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
 

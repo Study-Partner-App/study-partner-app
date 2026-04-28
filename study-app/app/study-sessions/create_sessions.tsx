@@ -24,8 +24,8 @@ interface StudySession {
     course?: string;
 }
 
-const CreateSessionsPage = () => {
-    const router = useRouter();
+export default function CreateSessionsPage() {
+
 
     const [sessionInfo, setSessionInfo] = useState<StudySession>({
         title: '',
@@ -236,5 +236,3 @@ const CreateSessionsPage = () => {
 
     );
 };
-
-export default CreateSessionsPage;
