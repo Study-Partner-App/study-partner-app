@@ -116,16 +116,33 @@ export default function CourseDropdown({
       <Modal visible={visible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContainer, { borderColor: palette.border }]}>
-            <Text
+            <View
               style={{
-                fontWeight: '700',
-                fontSize: 16,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
                 marginBottom: 10,
-                color: palette.text,
               }}
             >
-              Select Course
-            </Text>
+              <Text
+                style={{
+                  fontWeight: '700',
+                  fontSize: 16,
+                  color: palette.text,
+                }}
+              >
+                Select Course
+              </Text>
+
+              <TouchableOpacity
+                onPress={() => setVisible(false)}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Text style={{ color: palette.subtext, fontSize: 16 }}>
+                  ✕
+                </Text>
+              </TouchableOpacity>
+            </View>
 
             <TextInput
               placeholder={placeholder}

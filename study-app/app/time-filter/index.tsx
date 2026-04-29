@@ -39,49 +39,153 @@ import CourseDropdown from './CourseDropdown';
 
 //-----------------------Load courses (will probably need to load from some separate file later)---------------------------------
 
-const COURSES: string[] = [
-  'CS2003',
-  'BIOL1603',
-  'CS2123',
-  'Chem3013',
-  'MATH2024',
-  'MATH221',
-  'MATH241',
-  'BIO101',
-  'BIO220',
-  'CHEM110',
-  'CHEM210',
-  'PHYS121',
-];
-
 const COURSES_BY_SUBJECT: Record<string, string[]> = {
+  "Artificial Intelligence": [
+    "CS 3083", // Fundamentals of AI Systems
+    "CS 4103", // Fundamentals of Machine Learning
+    "CYB 4203", // Secure and Trustworthy AI
+    "CS 4253", // Artificial Intelligence
+    "ECE 4413" // Neural Networks and Deep Learning
+  ],
+  "Chemical Engineering": [
+    "CHE 1011", // Intro to ChE Profession
+    "CHE 2003", // Principles of ChE
+    "CHE 3063", // Equilibrium Thermodynamics
+    "CHE 3084", // Mass Transfer
+    "CHE 4003", // CE Engineering Lab 1
+    "CHE 4013", // CE Engineering Lab 2
+    "CHE 4063", // Chemical Reactor Design
+    "CHE 4803", // CE Plant design
+    "CHE 4103",  // Process Component Design
+    "CHE 4113",  // Process Control
+    "CHE 4123" // Chemical Process Health and Safety
+  ],
+  "Computer and Electrical Engineering": [
+    "ECE 1011", // Computer Tools for ECE
+    "ECE 2001", // Basic Electrical Measurments Lab
+    "ECE 2003", // Electric Circuit Analysis
+    "ECE 2063", // Computer Systems Organization
+    "ECE 2163", // Digital Systems Principles
+    "ECE 2161", // Digital Systems Lab
+    "ECE 2263", // Embedded Systems in C
+    "ECE 3023", // Intro to Electromagnetics
+    "ECE 3033", // Electric Power Systems
+    "ECE 3113", // Signals and Linear Systems
+    "ECE 3143", // Electronics I
+    "ECE 4103", // Electrical and Computer Engineering Design Project Part 1
+    "ECE 4203", // Electrical and Computer Engineering Design Project Part 2
+    "ECE 4041", // Electronics Lab
+    "ECE 4043", // Electronics II
+    "ECE 4053", // Classical Control Theory
+    "ECE 4073", // Information and Communication Systems
+    "ECE 4163"  // Computer Hardware Techniques
+  ],
   "Computer Science": [
-    "CS 2003",
-    "CS 2123",
-    "CS 3003",
-    "CS 3013",
-    "CS 4333",
-    "CS 4513"
+    "CS 1001", // Introduction to Computer Science
+    "CS 1043", // Intro to Programming
+    "CS 2001", // Ethics
+    "CS 2003", // Fundamentals of Algorithms
+    "CS 2033", // Computer Organization and Assembly Language
+    "CS 2123", // Data Structures
+    "CS 3003", // Comparative Programming Languages
+    "CS 3013", // Discrete Mathematics
+    "CS 3053", // Operating Systems
+    "CS 3513", // Software Engineering
+    "CS 4013", // Compilers
+    "CS 4163",  // Database Systems
+    "CS 4333", // Computer networks
+    "CS 4513" // Senior Project
   ],
-  "Math": [
-    "MATH 2014",
-    "MATH 2024",
-    "MATH 2073",
-    "MATH 3073",
-    "MATH 4503"
+  "Computer Simulation and Gaming": [
+    "CSG 1003", // Introduction to Game Design
+    "CSG 3013", // Intro to Real-Time Engines
+    "CSG 3023", // Intro to Game Programming
+    "CSG 3523", // Game Systems Development
+    "CSG 3813", // Environmenal Storytelling
+    "CSG 4003", // Senior Project I
+    "CSG 4013", // Senior Project II
+    "CSG 4283", // 3D Modeling and Animation
+    "CSG 4373", // 3D Visualization of Dynamic Simulations
+    "CSG 4603" // Portfolio Development
   ],
-  "Biology": [
-    "BIOL 1603",
-    "BIOL 1234",
-    "BIOL 2603"
+  "Cybersecurity": [
+    "CYB 2004", // Secure Software Development I
+    "CYB 2013", // Secure Software Development II
+    "CYB 3023", // Cyber and Society Seminar
+    "CYB 3043", // Enterprise Networks
+    "CYB 3053", // Operating Systems
+    "CYB 3073", // Intro to Cybersecurity
+    "CYB 3353", // System Administration
+    "CYB 3363", // Cryptography
+    "CYB 4003", // Cybersecurity Capstone
+    "CYB 4073", // Cyber defense
+    "CYB 4104", // Software and network security
+    "CYB 4413"  // Web application security
   ],
-  "Chemistry": [
-    "CHEM 110",
-    "CHEM 1113",
-    "CHEM 210",
-    "CHEM 2113",
-    "CHEM 3013"
+  "Physics": [
+    "PHYS 1002", // Welcome to Physics
+    "PHYS 2053", // General Physics I
+    "PHYS 2051", // General Physics I Lab
+    "PHYS 2063", // General Physics II
+    "PHYS 2061", // General Physics II Lab
+    "PHYS 2073", // General Physics III
+    "PHYS 2071", // General Physics III Lab
+    "PHYS 2083", // Foundational Modern Physics
+    "PHYS 2081", // Foundational Modern Physics Lab
+    "PHYS 3043", // Thermodynamics and Statistical Mechanics
+    "PHYS 3053", // Mathematical Physics
+    "PHYS 3083", // Modern Physics
+    "PHYS 3112", // Physics instrumentation lab
+    "PHYS 4003", // Classical Mechanics
+    "PHYS 4033",  // Quantum Mechanics I
+    "PHYS 4063" // Electricity and Magnetism
   ],
+  "Mathematics": [
+    "MATH 2014", // Calculus I
+    "MATH 2024", // Calculus II
+    "MATH 2073", // Calculus III
+    "MATH 3033", // Intro to Advanced Mathematics
+    "MATH 3013",  // Discrete Mathematics
+    "MATH 3073", // Differential Equations
+    "MATH 3553", // Modern Algebra
+    "MATH 4003", // Advanced Calculus I
+    "MATH 4123", // Linear Algebra
+    "MATH 4503", // Numerical Methods
+    "STAT 4813"  // Statistical Methods
+
+  ],
+  "Mechanical Engineering": [
+    "ME 1123", // Design and Manufacturing
+    "ME 1212", // ME Graphics
+    "ME 2023", // Intro to Dynamics
+    "ME 2123", // Materials and Technology
+    "ME 3033", // Properties of Materials 
+    "ME 3063", // Manufacturing
+    "ME 3123", // Dynamic Systems
+    "ME 4053", // System Dynamics
+    "ME 4123", // Thermal Sciences
+    "ME 4383", // ME Design
+    "ME 4293", // Project
+    "ME 4383" // ME Design
+  ],
+  "Petroleum Engineering": [
+    "PE 1001", // Intro to Petroleum Engineering
+    "PE 2101", // IRock and Fluid Properties Lab
+    "PE 2113", // Rock Properties
+    "PE 2123", // Fluid Properties
+    "PE 3023", // Reservoir Engineering I
+    "PE 3041", // Drilling Engineering I Lab
+    "PE 3043", // Drilling Engineering I
+    "PE 3063", // Data analytics
+    "PE 3073", // Production
+    "PE 4043", // Drilling Engineering II
+    "PE 4053", // Formulation Evaluation
+    "PE 4063", // Well Construction
+    "PE 4071", // Production Engineering Lab
+    "PE 4113", // Reservoir Engineering II
+    "PE 4513", // Integrated Resovoir Modeling
+    "PE 4983"  // FCapstone
+  ]
 };
 
 
@@ -376,15 +480,28 @@ export default function Index() {
   //show validation errors under time fields
   const [timeError, setTimeError] = useState<string | null>(null);
 
+  // Disable commit to sessions button
+  const [hasJoined, setHasJoined] = useState(false);
+  const [joinLoading, setJoinLoading] = useState(false);
+  const [participantCount, setParticipantCount] = useState(0);
+
+  // Track submission attempt
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   //---------------------------Define subjects---------------------------
   const subjects = [
+    "Artificial Intelligence",
+    "Chemical Engineering",
+    "Computer and Electrical Engineering",
     "Computer Science",
-    "Math",
-    "Biology",
-    "Art",
-    "Chemistry"
+    "Computer Simulation and Gaming",
+    "Cybersecurity",
+    "Physics",
+    "Mathematics",
+    "Mechanical Engineering",
+    "Petroleum Engineering"
   ];
+
 
   const filteredSubjects = subjects.filter(subject =>
     subject.toLowerCase().includes(subjectSearch.toLowerCase())
@@ -492,7 +609,57 @@ export default function Index() {
   useEffect(() => {
     setSelectedCourse('');
   }, [selectedSubject]);
-  ``
+
+
+  // Check for duplicate sessions
+  useEffect(() => {
+    const checkIfJoined = async () => {
+      if (!selectedSession) return;
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setHasJoined(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('commitments')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('session_id', selectedSession.id)
+        .maybeSingle();
+
+      if (!error && data) {
+        setHasJoined(true);
+      } else {
+        setHasJoined(false);
+      }
+    };
+
+    checkIfJoined();
+  }, [selectedSession]);
+
+  // Check if session has reached max capacity
+  useEffect(() => {
+    const fetchParticipantCount = async () => {
+      if (!selectedSession) return;
+
+      const { count, error } = await supabase
+        .from('commitments')
+        .select('*', { count: 'exact', head: true })
+        .eq('session_id', selectedSession.id);
+
+      if (!error && typeof count === 'number') {
+        setParticipantCount(count);
+      }
+    };
+
+    fetchParticipantCount();
+  }, [selectedSession]);
+
 
   //-------------------- Helpers for making sure end times don't break 30-minute logic--------------------
   //Time math helpers (24h circular clock)
@@ -563,7 +730,6 @@ export default function Index() {
     setEndTime(newEnd);
     setTimeError(null);
   };
-  ``
 
 
 
@@ -578,6 +744,58 @@ export default function Index() {
     });
   };
 
+  // Handles joining sessions. Logic for commiting to sessions goes here.
+  const handleJoinSession = async () => {
+    if (!selectedSession || hasJoined || joinLoading) return;
+
+    setJoinLoading(true);
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      setJoinLoading(false);
+      setTimeError('You must be logged in to join a session.');
+      return;
+    }
+
+    const { error: insertError } = await supabase
+      .from('commitments')
+      .insert({
+        user_id: user.id,
+        session_id: selectedSession.id,
+      });
+
+    if (insertError) {
+      // Handles unique constraint violation if DB index exists
+      if (insertError.code === '23505') {
+        setHasJoined(true);
+      } else {
+        console.error(insertError);
+        setTimeError('Unable to join session. Please try again.');
+      }
+      setJoinLoading(false);
+      return;
+    }
+
+    // Successfully joined
+    setHasJoined(true);
+    setJoinLoading(false);
+  };
+
+  const isSessionFull =
+    selectedSession?.max_people != null &&
+    participantCount >= selectedSession.max_people;
+
+  // Used for disabling find sessions button until required fields are filled
+  const isFormValid =
+    Boolean(selectedSubject) &&
+    Boolean(startTime) &&
+    Boolean(endTime);
+
+
   return (
     <LinearGradient
       colors={theme.gradients.background}
@@ -590,17 +808,22 @@ export default function Index() {
         <Text style={styles.header}>Find a Study Session</Text>
 
         {/* --- FILTER CARD --- */}
+
         <View style={[styles.cardSurface, { padding: 16, marginBottom: 20 }]}>
           {/* Section: Time Window */}
           <Text style={styles.sectionHeader}>Time Window</Text>
           <SegmentedControl value={timeFilter} onChange={setTimeFilter} />
 
+          {/* Section: Explain meaning of asterisk (required) */}
+          <Text style={{ fontSize: 12, color: palette.subtext, marginBottom: 8 }}>
+            Fields marked with * are required
+          </Text>
           {/* Section: Time Pickers */}
           <View style={{ flexDirection: 'row', gap: 12 }}>
             {/* Start Time */}
             <View style={{ flex: 1 }}>
               <TimePicker
-                label="Start"
+                label="Start Time"
                 value={startTime}
                 onChange={onStartChange}
                 required
@@ -613,7 +836,7 @@ export default function Index() {
             <View style={{ flex: 1 }}>
               <View style={{ position: 'relative' }}>
                 <TimePicker
-                  label="End"
+                  label="End Time"
                   value={endTime}
                   onChange={onEndChange}
                   required
@@ -650,7 +873,9 @@ export default function Index() {
           <Text style={styles.sectionHeader}>Search Filters</Text>
 
           {/* Subject picker */}
-          <Text style={styles.label}>Subject</Text>
+          <Text style={styles.label}>
+            Subject <Text style={{ color: palette.text }}>*</Text>
+          </Text>
           <TouchableOpacity
             style={styles.dropdown}
             onPress={() => setSubjectModalVisible(true)}
@@ -662,7 +887,8 @@ export default function Index() {
             {/* Right chevron indicator */}
             <Text style={{ position: 'absolute', right: 12, color: palette.subtext }}>⌄</Text>
           </TouchableOpacity>
-          {!selectedSubject && <Text style={styles.errorText}>Subject is required</Text>}
+          {/*hasSubmitted && !selectedSubject && (
+            <Text style={styles.errorText}>Subject is required</Text>)}
 
           {/* Course */}
           <CourseDropdown
@@ -678,13 +904,15 @@ export default function Index() {
           {/* Actions */}
           <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
             <View style={{ flex: 1 }}>
-              <PrimaryButton title="Find Sessions" onPress={async () => {
-                // Validate before searching
-                const { valid, error } = validateThirtyMinuteRange(startTime, endTime);
-                if (!valid) { setTimeError(error || 'Invalid time range.'); return; }
-                setTimeError(null);
-                await loadSessions();
-              }} disabled={!selectedSubject || loading} />
+              <PrimaryButton
+                title="Find Sessions"
+                onPress={async () => {
+                  setHasSubmitted(true);
+                  setTimeError(null);
+                  await loadSessions();
+                }}
+                disabled={!isFormValid || loading}
+              />
             </View>
             <View style={{ flex: 1 }}>
               <SecondaryButton title="Clear" onPress={() => {
@@ -821,6 +1049,12 @@ export default function Index() {
                     <Text style={{ color: palette.subtext }}>
                       📍 {selectedSession.location}
                     </Text>
+
+                    {selectedSession.max_people && (
+                      <Text style={{ color: palette.subtext }}>
+                        👥 {participantCount} / {selectedSession.max_people} participants
+                      </Text>
+                    )}
                   </View>
 
                   {/* ---------- Description ---------- */}
@@ -865,31 +1099,40 @@ export default function Index() {
                       </Text>
                     </Pressable>
 
-                    {/* Future button. Commit to sessions will go here. */}
-                    {/* 
-            <Pressable
-              onPress={handleJoinSession}
-              style={{
-                paddingVertical: 10,
-                paddingHorizontal: 16,
-                borderRadius: 10,
-                backgroundColor: palette.primary,
-              }}
-            >
-              <Text style={{ fontWeight: '700', color: '#fff' }}>
-                Join Session
-              </Text>
-            </Pressable>
-            */}
+
+                    {/* ---------- Commit to sessions button ----------*/}
+                    <Pressable
+                      onPress={handleJoinSession}
+                      disabled={hasJoined || joinLoading || isSessionFull}
+                      style={{
+                        paddingVertical: 10,
+                        paddingHorizontal: 16,
+                        borderRadius: 10,
+                        backgroundColor:
+                          hasJoined || isSessionFull
+                            ? '#A0A0A0'
+                            : palette.primary,
+                        opacity: joinLoading ? 0.7 : 1,
+                      }}
+                    >
+                      <Text style={{ fontWeight: '700', color: '#fff' }}>
+                        {hasJoined
+                          ? 'Joined'
+                          : isSessionFull
+                            ? 'Session Full'
+                            : joinLoading
+                              ? 'Joining…'
+                              : 'Join Session'}
+                      </Text>
+                    </Pressable>
+                    ``
                   </View>
                 </>
               )}
             </View>
           </View>
         </Modal>
-        ``
-        {/* (Might use later) Grouped By Slot*/}
-        {/* <Text style={styles.sectionHeader}>Matched Slots</Text> ... */}
+
 
         {/* Subject Modal */}
         <Modal visible={subjectModalVisible} transparent animationType="fade">
@@ -906,29 +1149,43 @@ export default function Index() {
               />
 
               <View style={{ maxHeight: 260 }}>
-                {filteredSubjects.map((subject, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={{
-                      paddingVertical: 12,
-                      paddingHorizontal: 8,
-                      borderBottomWidth: index < filteredSubjects.length - 1 ? StyleSheet.hairlineWidth : 0,
-                      borderBottomColor: palette.border,
-                      borderRadius: 8,
-                    }}
-                    onPress={() => {
-                      setSelectedSubject(subject);
-                      setSubjectModalVisible(false);
-                      setSubjectSearch('');
-                    }}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={{ color: palette.text }}>{subject}</Text>
-                  </TouchableOpacity>
-                ))}
-                {filteredSubjects.length === 0 && (
-                  <Text style={{ marginTop: 10, fontStyle: 'italic', color: palette.subtext }}>No subjects found</Text>
-                )}
+                <ScrollView showsVerticalScrollIndicator>
+                  {filteredSubjects.map((subject, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={{
+                        paddingVertical: 12,
+                        paddingHorizontal: 8,
+                        borderBottomWidth:
+                          index < filteredSubjects.length - 1
+                            ? StyleSheet.hairlineWidth
+                            : 0,
+                        borderBottomColor: palette.border,
+                        borderRadius: 8,
+                      }}
+                      onPress={() => {
+                        setSelectedSubject(subject);
+                        setSubjectModalVisible(false);
+                        setSubjectSearch('');
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={{ color: palette.text }}>{subject}</Text>
+                    </TouchableOpacity>
+                  ))}
+
+                  {filteredSubjects.length === 0 && (
+                    <Text
+                      style={{
+                        marginTop: 10,
+                        fontStyle: 'italic',
+                        color: palette.subtext,
+                      }}
+                    >
+                      No subjects found
+                    </Text>
+                  )}
+                </ScrollView>
               </View>
 
               <TouchableOpacity
