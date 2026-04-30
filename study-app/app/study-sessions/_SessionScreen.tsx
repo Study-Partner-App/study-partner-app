@@ -1,10 +1,10 @@
-import { StudySession } from "./_utils";
+import { StudySession } from "../_utilities/globalUtils";
 import SessionCard from "./_SessionCard";
 import { FlatList, Text} from "react-native";
 import { useFocusEffect } from "expo-router";
 import { useCallback } from "react";
 
-export default function SessionScreen({ sessions, fetchLoading, creatorName, fetchSessions }: { sessions: StudySession[]; fetchLoading: boolean; creatorName: string; fetchSessions: () => void }) {
+export default function SessionScreen({ sessions, fetchLoading, fetchSessions }: { sessions: StudySession[]; fetchLoading: boolean; fetchSessions: () => void }) {
     
     useFocusEffect(
         useCallback(() => {
@@ -26,7 +26,7 @@ export default function SessionScreen({ sessions, fetchLoading, creatorName, fet
         <FlatList<StudySession>
             data = {sessions}
             keyExtractor={(item) => item.id}
-            renderItem={({item}) => <SessionCard session={item} creatorName={creatorName} />}
+            renderItem={({item}) => <SessionCard session={item} />}
             contentContainerStyle={{ padding: 12}}
             ListFooterComponent={null}
             ListEmptyComponent={!fetchLoading ? <Text>No Sessions Found.</Text> : null}

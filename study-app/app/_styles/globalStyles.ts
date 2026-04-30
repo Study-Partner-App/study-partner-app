@@ -226,8 +226,16 @@ export const styles = StyleSheet.create({
         marginBottom: 12,
     },
 
+    content : {
+        flex: 1,
+        padding: 20,
+    },
+
+    footer : {
+        backgroundColor: theme.palette.border,
+    },
+
     button: {
-        position: "relative",
         marginTop: 10,
         marginBottom: 10,
         backgroundColor: "#1D4ED8",

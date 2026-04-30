@@ -1,6 +1,48 @@
 import { supabase } from "@/lib/supabase";
-import { StudySession, User } from "../study-sessions/_utils";
 import { useState } from "react";
+
+//----------------------------------------------
+// This file contains utility functions that are used across multiple files in the app, such as fetching sessions by user ID, joining a session, leaving a session, etc. This is to avoid code duplication and to keep our code organized.
+//---------------------------------------
+
+//-------Type Definitions--------//
+
+export type StudySession = {
+    id: string,
+    creator_id: string,
+    title: string,
+    subject: string,
+    location: string,
+    date: string,
+    start_time: string,
+    end_time: string,
+    is_announced: boolean,
+    created_at: string,
+    max_people?: number,
+    course?: string,
+    description?: string,
+}
+
+export type Commitment = {
+    id: string,
+    user_id: string,
+    session_id: string,
+    created_at: string
+}
+
+export type User = {
+    id: string,
+    created_at: string,
+    university: string,
+    first_name: string,
+    last_name: string,
+    major: string,
+    email: string,
+    classes?: string[],
+    bio?: string,
+}
+
+//-------Utility Functions--------//
 
 //An async function that takes a user id and session id string as parameters and then tries to add them to the 
 //commitments table in the database. If insert is successful, returns true, else returns false
@@ -71,6 +113,16 @@ export async function fetchUserNameById(userId:string): Promise<string | null>{
     }
     return userName;
 }
+
+export async function getCreatorUsername(session: StudySession): Promise<string | null> {
+        const { data, error } = await supabase.from('profiles').select('first_name, last_name').eq('id', session.creator_id).single();
+        if (error) {
+            console.error("Error fetching creator username:", error);
+            return null;
+        }
+        const fullName = data.first_name + " " + data.last_name;
+        return fullName;
+    } 
 
 //A function to get the hardcoded list of subjects that users can choose from when creating a study session.
 export function getSubjects(): string[] {

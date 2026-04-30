@@ -1,9 +1,10 @@
 import { Text, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
-import { StudySession } from "./_utils";
+import { getCreatorUsername, StudySession } from "../_utilities/globalUtils";
 import { styles } from "@/app/_styles/globalStyles";
+import { useEffect, useState } from "react";
 
-export default function SessionCard({ session, creatorName }: { session: StudySession; creatorName: string }) {
+export default function SessionCard({ session }: { session: StudySession }) {
     const router = useRouter();
     if(!session) {
         return null;
@@ -12,6 +13,16 @@ export default function SessionCard({ session, creatorName }: { session: StudySe
     let sessionId : string = session.id;
     
     //console.log("SessionCard received sessionId:", sessionId);
+
+    const [creatorName, setCreatorName] = useState("");
+
+    useEffect(() => {
+        const fetchCreatorName = async () => {
+            const name = await getCreatorUsername(session);
+            setCreatorName(name || "Unknown Creator");
+        };
+        fetchCreatorName();
+    }, [session]);  
 
     return (
         <TouchableOpacity

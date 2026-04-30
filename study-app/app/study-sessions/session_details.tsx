@@ -1,9 +1,9 @@
-import { View, Text, ActivityIndicator, Pressable, } from 'react-native';
+import { View, Text, ActivityIndicator, Pressable, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { LinearGradient } from "expo-linear-gradient";
-import { StudySession } from "./_utils";
+import { StudySession } from '../_utilities/globalUtils';
 import { theme } from "@/lib/theme";
-import { useCallback, useState } from 'react';
+import { use, useCallback, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { styles } from '../_styles/globalStyles';
 
@@ -14,6 +14,8 @@ export default function SessionDetails() {
 
     const [loading, setLoading] = useState(true);
     const [session, setSession] = useState<StudySession | null>(null);
+
+    const [isCreator, setIsCreator] = useState(false);
     
     // Fetch session details using sessionId
     const fetchSessionDetails = async () =>{
@@ -26,6 +28,20 @@ export default function SessionDetails() {
         else if(data) {
             setSession(data);
             setLoading(false);
+        }
+    };
+
+    // Check if the current user is the creator of the session to determine whether to show edit/delete options.
+    const checkIfCreator = async () => {
+        const { data, error } = await supabase.from("study_sessions").select("creator_id").eq("id", sessionId).single();
+        if (error) {
+            console.error("Error checking session creator:", error);
+        } else if (data) {
+            // Assuming you have a way to get the current user's ID, e.g., from authentication
+            const currentUser = await supabase.auth.getUser();
+            if (currentUser.data.user?.id === session?.creator_id) {
+                setIsCreator(true);
+            }
         }
     };
 
@@ -62,6 +78,17 @@ export default function SessionDetails() {
             };
     }, [sessionId]));
 
+    useFocusEffect(
+        useCallback(() => {
+            let isActive = true;
+
+            checkIfCreator();
+
+            return () => {
+                isActive = false;
+            };
+    }, [session]));
+
     if(loading) {
         return (
             <LinearGradient
@@ -90,48 +117,71 @@ export default function SessionDetails() {
         )
     }
 
-    return (
-        <LinearGradient
-            colors={theme.gradients.background}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{ flex: 1 }}
-        >
-            <View style={styles.container}>
-                <View style={styles.input}>
-                    <Text style={styles.session_title}>Title: {session.title}</Text>
-                    <Text style={styles.session_subtitle}>Subject: {session.subject}</Text>
-                    <Text style={styles.session_subtitle}>Date: {session.date}</Text>
-                    <Text style={styles.session_subtitle}>Time: {session.start_time} - {session.end_time}</Text>
-                    <Text style={styles.session_subtitle}>Location: {session.location}</Text>
-                    <Text style={styles.session_text}>Description: {session.description}</Text>
+    if(!isCreator) {
+        return (
+            <LinearGradient
+                colors={theme.gradients.background}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ flex: 1 }}
+            >
+                <View style={styles.container}>
+                    <ScrollView style={styles.input}>
+                        <Text style={styles.session_title}>Title: {session.title}</Text>
+                        <Text style={styles.session_subtitle}>Subject: {session.subject}</Text>
+                        <Text style={styles.session_subtitle}>Date: {session.date}</Text>
+                        <Text style={styles.session_subtitle}>Time: {session.start_time} - {session.end_time}</Text>
+                        <Text style={styles.session_subtitle}>Location: {session.location}</Text>
+                        <Text style={styles.session_text}>Description: {session.description}</Text>
+                    </ScrollView>
                 </View>
-            </View>
-            <View style={styles.container}>
-                <Pressable
-                    style={styles.button} 
-                    onPress={() => 
-                        router.push({
-                            pathname: "/study-sessions/edit",
-                            params: { sessionId:sessionId }
-                        })
-                    }
-                    accessibilityRole="button"
-                    accessibilityLabel="Edit"
-                >
-                    <Text style={styles.loginButtonText}>Edit</Text>
-                </Pressable>
-                
-                <Pressable
-                    style={styles.button} 
-                    onPress={onDeleteSession}
-                    accessibilityRole="button"
-                    accessibilityLabel="Delete"
-                >
-                    <Text style={styles.loginButtonText}>Delete</Text>
-                </Pressable>
+            </LinearGradient>
+        )
+    }
+    else {
+        return (
+            <LinearGradient
+                colors={theme.gradients.background}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ flex: 1 }}
+            >
+                <View style={styles.container}>
+                    <ScrollView style={styles.input}>
+                        <Text style={styles.session_title}>Title: {session.title}</Text>
+                        <Text style={styles.session_subtitle}>Subject: {session.subject}</Text>
+                        <Text style={styles.session_subtitle}>Date: {session.date}</Text>
+                        <Text style={styles.session_subtitle}>Time: {session.start_time} - {session.end_time}</Text>
+                        <Text style={styles.session_subtitle}>Location: {session.location}</Text>
+                        <Text style={styles.session_text}>Description: {session.description}</Text>
+                    </ScrollView>
+                </View>
+                <View style={styles.footer}>
+                    <Pressable
+                        style={styles.button} 
+                        onPress={() => 
+                            router.push({
+                                pathname: "/study-sessions/edit",
+                                params: { sessionId:sessionId }
+                            })
+                        }
+                        accessibilityRole="button"
+                        accessibilityLabel="Edit"
+                    >
+                        <Text style={styles.loginButtonText}>Edit</Text>
+                    </Pressable>
+                    
+                    <Pressable
+                        style={styles.button} 
+                        onPress={onDeleteSession}
+                        accessibilityRole="button"
+                        accessibilityLabel="Delete"
+                    >
+                        <Text style={styles.loginButtonText}>Delete</Text>
+                    </Pressable>
 
-            </View>
-        </LinearGradient>
-    )
+                </View>
+            </LinearGradient>
+        )
+    }
 }
