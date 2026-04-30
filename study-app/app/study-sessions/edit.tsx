@@ -1,13 +1,14 @@
-import { View, Text, Button, TextInput, Pressable } from 'react-native';
+import { View, Text, Button, TextInput, Pressable, ActivityIndicator } from 'react-native';
 import { Dropdown} from 'react-native-element-dropdown';
 import { styles } from "@/app/_styles/globalStyles";
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { router, useLocalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '@/lib/theme';
 import { Checkbox } from 'expo-checkbox';
 import { StudySession } from './_utils';
+import { getCoursesBySubject, getSubjects } from '../_utilities/globalUtils';
 
 // IStudySession is an interface to contain data received in string format from the input fields,
 // while the StudySession type from _utils is the exact data type that we retrieve from Supabase.
@@ -28,6 +29,7 @@ interface IStudySession {
 }
 
 export default function EditSessionPage() {
+    const router = useRouter();
 
     const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
 
@@ -41,12 +43,11 @@ export default function EditSessionPage() {
     });
 
     // The subjects that the user may choose from.
-    const subjects = [
-        { label: "Computer Science", value: "Computer Science" },
-        { label: "Math", value: "Math" },
-        { label: "Biology", value: "Biology" },
-        { label: "Chemistry", value: "Chemistry" }
-    ];
+    const subjects = getSubjects().map(subject => ({ label: subject, value: subject })); // This will convert the array of subjects into an array of objects with label and value properties, which is the format that the dropdown component expects.
+
+    // The courses the user may choose from. Will be narrowed by the subject chosen, so the courses array will be different based on the subject selected.
+    // TODO: Implement course dropdown selection that is dependent on the subject dropdown selection.
+    const courses = getCoursesBySubject();
 
     const [announced, setAnnouncedState] = useState(false); // State to manage the checkbox input for the announced property.
     const [maxParticipants, setMaxParticipants] = useState<string>(''); // State to manage the input for the maxParticipants property.
@@ -77,8 +78,8 @@ export default function EditSessionPage() {
         if(session) {
             setSessionInfo({
                 title: session.title,
-                startTime: session.start_time,
-                endTime: session.end_time,
+                startTime: session.start_time.slice(0, -3), // We slice off the seconds from the time string since our input fields are only in HH:MM format.
+                endTime: session.end_time.slice(0, -3),
                 date: session.date,
                 subject: session.subject,
                 location: session.location,
@@ -156,7 +157,22 @@ export default function EditSessionPage() {
             alert('Error updating study session.');
             return;
         }
-        
+
+        //Finally, if no errors were detected, the update was successful, so just navigate back.
+        router.back();
+    }
+
+    if(loading) {
+        return (
+            <LinearGradient
+                colors={theme.gradients.background}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ flex: 1 }}
+            >
+                <ActivityIndicator />
+            </LinearGradient>
+        )
     }
 
     return (
@@ -168,7 +184,7 @@ export default function EditSessionPage() {
         >
 
             <View style={styles.container}>
-            <Text style={styles.hs_title}>Create Study Session</Text>
+            <Text style={styles.hs_title}>Edit Study Session</Text>
 
             <View style={styles.input}>
                 <TextInput
@@ -256,16 +272,12 @@ export default function EditSessionPage() {
                     />
                 </View>
                 
-                <View style={{ marginTop: 20 }}>
-                    <Pressable onPress={handleSubmit}>
-                        <LinearGradient
-                            colors={theme.gradients.submitButton}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 1 }}
-                            style={styles.loginButton}
-                        >    
-                            <Text style={styles.loginButtonText}>Submit</Text>
-                        </LinearGradient>
+                <View style={styles.container}>
+                    <Pressable 
+                        style={styles.button}
+                        onPress={handleSubmit}
+                    >  
+                        <Text style={styles.loginButtonText}>Submit</Text>
                     </Pressable>
                 </View>
             </View>
