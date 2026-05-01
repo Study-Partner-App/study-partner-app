@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from "react"
 import { supabase } from "../../lib/supabase";
 import { FriendRequest } from '@/app/_user-details/_utils';
 
-export function friendRequests() {
+
+export function useFriendRequests() {
     /**
      * Custom hook to manage friend requests, including fetching, accepting, and rejecting requests.
      * It also sets up a real-time subscription to listen for changes in friend requests.
      */
-    
+
+    // State to hold incoming friend requests
     const [requests, setRequests] = useState<FriendRequest[]>([]);
     // Pagination states
     const [loading, setLoading] = useState(true);
@@ -38,6 +40,8 @@ export function friendRequests() {
                 .select(`
                     id,
                     sender_id,
+                    receiver_id,
+                    status,
                     profiles!friend_requests_sender_id_fkey(
                         first_name,
                         last_name,
@@ -46,8 +50,8 @@ export function friendRequests() {
                     )
                     `
                 )
-                .eq("receiver_id", user.id)
-                .eq("status", "pending");
+                .or(`receiver_id.eq.${user.id},sender_id.eq.${user.id}`)
+
             if(!error) {
                 const formattedData = (data ?? []).map((item: any) => ({
                     ...item,

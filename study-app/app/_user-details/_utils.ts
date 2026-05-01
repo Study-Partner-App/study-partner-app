@@ -13,8 +13,10 @@ export type User = {
 }
 
 export type FriendRequest = {
-    id: string, // request id
+    id: string, // id of the friend request
     sender_id: string,
+    receiver_id: string,
+    status: "pending" | "accepted" | "rejected",
     profiles: {
         first_name: string;
         last_name: string;
@@ -22,3 +24,11 @@ export type FriendRequest = {
         major: string[];
     } | null;
 };
+
+export type Friend = {
+    id: string;
+    first_name: string;
+    last_name: string;
+    university: string;
+    major: string[];
+}

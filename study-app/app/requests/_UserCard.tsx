@@ -15,6 +15,15 @@ export default function UserCard({ user, onAccept, onReject }: UserCardProps) {
         return null;
     }
 
+    const profile = Array.isArray(user.profiles)
+        ? user.profiles[0]
+        : user.profiles;
+      
+    if(!profile) {
+        return null;
+    }
+
+    console.log("UserCard profile: ", profile);
     return (
         <TouchableOpacity
             style={styles.listCard}
@@ -26,11 +35,11 @@ export default function UserCard({ user, onAccept, onReject }: UserCardProps) {
             }
         >
             <Text style={styles.listTitle}>
-                {user.profiles?.first_name} {user.profiles?.last_name}
+                {profile?.first_name} {profile?.last_name}
             </Text>
 
             <Text>
-                {user.profiles?.university} - {user.profiles?.major.join(",")}
+                {profile?.university} - {profile?.major?.join(",") ?? ""}
             </Text>
 
             <View style={{ flexDirection: "row", marginTop: 10 }}>
