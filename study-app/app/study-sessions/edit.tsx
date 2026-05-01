@@ -1,4 +1,4 @@
-import { View, Text, Button, TextInput, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, Button, TextInput, Pressable, ActivityIndicator, ScrollView } from 'react-native';
 import { Dropdown} from 'react-native-element-dropdown';
 import { styles } from "@/app/_styles/globalStyles";
 import { router, useLocalSearchParams, useRouter } from 'expo-router';
@@ -7,8 +7,7 @@ import { useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '@/lib/theme';
 import { Checkbox } from 'expo-checkbox';
-import { StudySession } from './_utils';
-import { getCoursesBySubject, getSubjects } from '../_utilities/globalUtils';
+import { StudySession, getCoursesBySubject, getSubjects } from '../_utilities/globalUtils';
 
 // IStudySession is an interface to contain data received in string format from the input fields,
 // while the StudySession type from _utils is the exact data type that we retrieve from Supabase.
@@ -183,105 +182,105 @@ export default function EditSessionPage() {
             style={{ flex: 1 }}
         >
 
-            <View style={styles.container}>
-            <Text style={styles.hs_title}>Edit Study Session</Text>
-
-            <View style={styles.input}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Title"
-                    placeholderTextColor={theme.palette.subtext}
-                    value={sessionInfo.title}
-                    onChangeText={(value) => handleChange('title', value)}
-                />
-
-                <TextInput 
-                    style={styles.input}
-                    placeholder="Start Time (HH:MM)"
-                    placeholderTextColor={theme.palette.subtext}
-                    value={sessionInfo.startTime}
-                    onChangeText={(value) => handleChange('startTime', value)}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="End Time (HH:MM)"
-                    placeholderTextColor={theme.palette.subtext}
-                    value={sessionInfo.endTime}
-                    onChangeText={(value) => handleChange('endTime', value)}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Date (YYYY-MM-DD)"
-                    placeholderTextColor={theme.palette.subtext}
-                    value={sessionInfo.date}
-                    onChangeText={(value) => handleChange('date', value)}
-                />
-
-                <Dropdown
-                    style={styles.dropdownInput}
-                    placeholderStyle={styles.dropdownPlaceholder}
-                    placeholder="Select Subject"
-                    data={subjects}
-                    value={sessionInfo.subject} 
-                    labelField="label"
-                    valueField="value"
-                    onChange={function (item: any): void {
-                        handleChange('subject', item.value);
-                    } }
-                />
-
-                <TextInput
-                    style={styles.input}
-                    placeholder="Location"
-                    placeholderTextColor={theme.palette.subtext}
-                    value={sessionInfo.location}
-                    onChangeText={(value) => handleChange('location', value)}
-                />
-
-                <TextInput
-                    style={styles.input}
-                    placeholder="Description (Optional)"
-                    placeholderTextColor={theme.palette.subtext}
-                    value={sessionInfo.description}
-                    onChangeText={(value) => handleChange('description', value)}
-                />
-                <TextInput 
-                    style={styles.input}
-                    placeholder="Course (Optional)"
-                    placeholderTextColor={theme.palette.subtext}
-                    value={sessionInfo.course}
-                    onChangeText={(value) => handleChange('course', value)}
-                /> 
-
-                <TextInput
-                    style={styles.input}
-                    placeholder="Max Participants (Optional)"
-                    placeholderTextColor={theme.palette.subtext}
-                    value={maxParticipants}
-                    onChangeText={(value) => setMaxParticipants(value)}
-                    keyboardType="numeric" // This will bring up the numeric keyboard on mobile devices to make it easier for the user to input a number.
-                />
+            <ScrollView style={styles.container}>
+                <Text style={styles.hs_title}>Edit Study Session</Text>
 
                 <View style={styles.input}>
-                    <Text>Announce Study Session</Text>
-                    <Checkbox
-                        value={announced}
-                        onValueChange={(value) => {
-                            setAnnouncedState(value);
-                        }}
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Title"
+                        placeholderTextColor={theme.palette.subtext}
+                        value={sessionInfo.title}
+                        onChangeText={(value) => handleChange('title', value)}
                     />
+
+                    <TextInput 
+                        style={styles.input}
+                        placeholder="Start Time (HH:MM)"
+                        placeholderTextColor={theme.palette.subtext}
+                        value={sessionInfo.startTime}
+                        onChangeText={(value) => handleChange('startTime', value)}
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="End Time (HH:MM)"
+                        placeholderTextColor={theme.palette.subtext}
+                        value={sessionInfo.endTime}
+                        onChangeText={(value) => handleChange('endTime', value)}
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Date (YYYY-MM-DD)"
+                        placeholderTextColor={theme.palette.subtext}
+                        value={sessionInfo.date}
+                        onChangeText={(value) => handleChange('date', value)}
+                    />
+
+                    <Dropdown
+                        style={styles.dropdownInput}
+                        placeholderStyle={styles.dropdownPlaceholder}
+                        placeholder="Select Subject"
+                        data={subjects}
+                        value={sessionInfo.subject} 
+                        labelField="label"
+                        valueField="value"
+                        onChange={function (item: any): void {
+                            handleChange('subject', item.value);
+                        } }
+                    />
+
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Location"
+                        placeholderTextColor={theme.palette.subtext}
+                        value={sessionInfo.location}
+                        onChangeText={(value) => handleChange('location', value)}
+                    />
+
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Description (Optional)"
+                        placeholderTextColor={theme.palette.subtext}
+                        value={sessionInfo.description}
+                        onChangeText={(value) => handleChange('description', value)}
+                    />
+                    <TextInput 
+                        style={styles.input}
+                        placeholder="Course (Optional)"
+                        placeholderTextColor={theme.palette.subtext}
+                        value={sessionInfo.course}
+                        onChangeText={(value) => handleChange('course', value)}
+                    /> 
+
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Max Participants (Optional)"
+                        placeholderTextColor={theme.palette.subtext}
+                        value={maxParticipants}
+                        onChangeText={(value) => setMaxParticipants(value)}
+                        keyboardType="numeric" // This will bring up the numeric keyboard on mobile devices to make it easier for the user to input a number.
+                    />
+
+                    <View style={styles.input}>
+                        <Text>Announce Study Session</Text>
+                        <Checkbox
+                            value={announced}
+                            onValueChange={(value) => {
+                                setAnnouncedState(value);
+                            }}
+                        />
+                    </View>
+                    
+                    <View style={styles.container}>
+                        <Pressable 
+                            style={styles.button}
+                            onPress={handleSubmit}
+                        >  
+                            <Text style={styles.loginButtonText}>Submit</Text>
+                        </Pressable>
+                    </View>
                 </View>
-                
-                <View style={styles.container}>
-                    <Pressable 
-                        style={styles.button}
-                        onPress={handleSubmit}
-                    >  
-                        <Text style={styles.loginButtonText}>Submit</Text>
-                    </Pressable>
-                </View>
-            </View>
-        </View>
-    </LinearGradient>
+            </ScrollView>
+        </LinearGradient>
     )
 }
