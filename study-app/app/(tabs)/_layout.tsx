@@ -1,4 +1,4 @@
-import { Tabs } from 'expo-router';
+import { Stack, Tabs } from 'expo-router';
 import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
@@ -36,10 +36,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (<Ionicons size={28} name="grid" color={color} />),
         }}
       />
-
-
     </Tabs>
 
+    
     
   );
 }

@@ -188,7 +188,33 @@ export const styles = StyleSheet.create({
     },
 
     // STUDY SESSIONS STYLES
-    title: {
+    session_container: {
+        flex: 1,
+        padding: 20,
+        margin: 2,
+    },
+
+    session_title: {
+        fontSize: 28,
+        fontWeight: "800",
+        color: theme.palette.text,
+        marginBottom: 8,
+    },
+
+    session_subtitle: {
+        fontSize: 22,
+        fontWeight: "800",
+        color: theme.palette.text,
+        marginBottom: 20,
+    },
+
+    session_text: {
+        fontSize: 16,
+        color: theme.palette.text,
+        marginBottom: 12,
+    },
+
+    session_card_title: {
         fontSize: 20,
         fontWeight: "700",
         color: theme.palette.text,

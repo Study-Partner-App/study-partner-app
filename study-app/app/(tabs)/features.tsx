@@ -15,7 +15,7 @@ export default function Features() {
     }
     const features: Feature[] = [
         { title: "Announcement Board", icon: "📢", route: "../announcement"},
-        { title: "Study Sessions", icon: "📚", route: "../study-sessions" },
+        { title: "Study Sessions", icon: "📚", route: "../study-sessions"},
         { title: "Matching", icon: "🤗", route: "../matching"},
         { title: "Friend Requests", icon: "👥", route: "../requests"},
         { title: "Time Filter", icon: "⏰", route: "../time-filter"},
