@@ -129,6 +129,7 @@ export default function SessionDetails() {
                     <ScrollView style={styles.input}>
                         <Text style={styles.session_title}>Title: {session.title}</Text>
                         <Text style={styles.session_subtitle}>Subject: {session.subject}</Text>
+                        <Text style={styles.session_subtitle}>Course: {session.course}</Text>
                         <Text style={styles.session_subtitle}>Date: {session.date}</Text>
                         <Text style={styles.session_subtitle}>Time: {session.start_time} - {session.end_time}</Text>
                         <Text style={styles.session_subtitle}>Location: {session.location}</Text>
@@ -150,6 +151,7 @@ export default function SessionDetails() {
                     <ScrollView style={styles.input}>
                         <Text style={styles.session_title}>Title: {session.title}</Text>
                         <Text style={styles.session_subtitle}>Subject: {session.subject}</Text>
+                        <Text style={styles.session_subtitle}>Course: {session.course}</Text>
                         <Text style={styles.session_subtitle}>Date: {session.date}</Text>
                         <Text style={styles.session_subtitle}>Time: {session.start_time} - {session.end_time}</Text>
                         <Text style={styles.session_subtitle}>Location: {session.location}</Text>
