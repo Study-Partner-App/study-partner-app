@@ -226,6 +226,28 @@ export const styles = StyleSheet.create({
         marginBottom: 12,
     },
 
+    content : {
+        flex: 1,
+        padding: 20,
+    },
+
+    footer : {
+        backgroundColor: theme.palette.border,
+    },
+
+    button: {
+        marginTop: 10,
+        marginBottom: 10,
+        backgroundColor: "#1D4ED8",
+        paddingVertical: 14,
+        borderRadius: 12,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+    },
+
     // FEATURE STYLES
     featureTitle: {
         fontSize: 24,

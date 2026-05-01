@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '@/lib/theme';
 import { Checkbox } from 'expo-checkbox';
+import { getCoursesBySubject, getSubjects, JoinSession } from '../_utilities/globalUtils';
 
 interface StudySession {
     // Required fields
@@ -25,7 +26,7 @@ interface StudySession {
 }
 
 export default function CreateSessionsPage() {
-
+    const router = useRouter();
 
     const [sessionInfo, setSessionInfo] = useState<StudySession>({
         title: '',
@@ -45,13 +46,12 @@ export default function CreateSessionsPage() {
     }
 
 
-    // The subjects that the user may choose from.
-    const subjects = [
-        { label: "Computer Science", value: "Computer Science" },
-        { label: "Math", value: "Math" },
-        { label: "Biology", value: "Biology" },
-        { label: "Chemistry", value: "Chemistry" }
-    ];
+    // The subjects that the user may choose from. Need to make it fit the format that the dropdown component used here expects.
+    const subjects = getSubjects().map(subject => ({ label: subject, value: subject })); // This will convert the array of subjects into an array of objects with label and value properties, which is the format that the dropdown component expects.
+
+    // The courses the user may choose from. Will be narrowed by the subject chosen, so the courses array will be different based on the subject selected. 
+    // TODO: Implement course dropdown selection that is dependent on the subject dropdown selection. For example, if the user selects "Computer Science" as the subject, then the course dropdown will only show computer science courses.
+    const courses = getCoursesBySubject();
 
     // Check formatting for the all fields to ensure the correct format is being used for each field. This will be called in the handleSubmit function before submitting to supabase.
     const checkFormatting = (field: keyof StudySession, value: string): boolean => {
@@ -116,11 +116,11 @@ export default function CreateSessionsPage() {
             alert('Error submitting study session.');
             return;
         }
-        
+
+        // If the session was successfully inserted into the database, navigate back to the previous page.
+        router.back();  
     }
 
-    // TODO: For the announced and maxParticipants fields, I will need to implement some different logic to handle the fact that these values will not just be simple strings, but for
-    // now, I will just leave them out of the form until I implement that logic.
     return (
         <LinearGradient
             colors={theme.gradients.background}
@@ -173,7 +173,7 @@ export default function CreateSessionsPage() {
                     valueField="value"
                     onChange={function (item: any): void {
                         handleChange('subject', item.value);
-                    } }
+                    }}
                 />
 
                 <TextInput
@@ -218,16 +218,12 @@ export default function CreateSessionsPage() {
                     />
                 </View>
                 
-                <View style={{ marginTop: 20 }}>
-                    <Pressable onPress={handleSubmit}>
-                        <LinearGradient
-                            colors={theme.gradients.submitButton}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 1 }}
-                            style={styles.loginButton}
-                        >    
-                            <Text style={styles.loginButtonText}>Submit</Text>
-                        </LinearGradient>
+                <View style={styles.container}>
+                    <Pressable 
+                        style={styles.button}
+                        onPress={handleSubmit}
+                    >  
+                        <Text style={styles.loginButtonText}>Submit</Text>
                     </Pressable>
                 </View>
                 </View>
