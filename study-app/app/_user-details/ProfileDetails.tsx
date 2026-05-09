@@ -1,11 +1,13 @@
 import React from "react";
 import { View, Text, ActivityIndicator, Pressable} from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, Stack } from "expo-router";
 import { useState, useEffect } from "react";
 import { User } from '@/app/_user-details/_utils';
 import { supabase } from "@/lib/supabase";
 import { styles } from "@/app/_styles/globalStyles";
 import {useFriendRequests } from "@/app/_hooks/friendRequests";
+import { LinearGradient } from "expo-linear-gradient";
+import { theme } from "@/lib/theme";
 
 export default function ProfileDetails() {
     const { userId} = useLocalSearchParams<{ userId: string }>();
@@ -123,55 +125,67 @@ export default function ProfileDetails() {
     }
 
     return (
-        <View style={styles.container}>
-            <Pressable onPress={() => router.back()}>
-                <Text style={{ color: "black", marginBottom: 16}}>{"\u2190"} Back</Text>
-            </Pressable>
-            <View style={styles.card}>
-                <View style={styles.buttonInRow}>
-                    <Text style={{ fontSize: 24, fontWeight: 600 }}>{user.first_name} {user.last_name}</Text>
+        <LinearGradient
+            colors={theme.gradients.background}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ flex: 1 }}
+        >
+            <>
+            <Stack.Screen
+                options={{
+                    title: "Profile",
+                    headerBackTitle: "Back",
+                }}
+            />
+            <View style={styles.container}>
+                
+                <View style={styles.card}>
+                    <View style={styles.buttonInRow}>
+                        <Text style={{ fontSize: 24, fontWeight: 600 }}>{user.first_name} {user.last_name}</Text>
 
-                    {/* <Pressable style={styles.addFriendButton} onPress={handleAddFriend}>
-                        <Text style={{ color: "white", fontWeight: "500" }}> Add Friend</Text>
-                    </Pressable> */}
+                        {/* <Pressable style={styles.addFriendButton} onPress={handleAddFriend}>
+                            <Text style={{ color: "white", fontWeight: "500" }}> Add Friend</Text>
+                        </Pressable> */}
 
-                    {friendStatus === "none" && (
-                        <Pressable style={styles.addFriendButton} onPress={handleAddFriend}>
-                            <Text style={{ color: "white" }}>Add Friend</Text>
-                        </Pressable>
-                    )}
-
-                    {friendStatus === "pending_received" && (
-                        <View style={styles.buttonsSameRow}>
-                            <Pressable style={styles.addFriendButton} onPress={handleAcceptFriend}>
-                                <Text style={{ color: "white" }}>Accept</Text>
+                        {friendStatus === "none" && (
+                            <Pressable style={styles.addFriendButton} onPress={handleAddFriend}>
+                                <Text style={{ color: "white" }}>Add Friend</Text>
                             </Pressable>
+                        )}
 
-                            <Pressable style={styles.rejectFriendButton} onPress={handleRejectFriend}>
-                                <Text style={{ color: "white" }}>Reject</Text>
-                            </Pressable>
+                        {friendStatus === "pending_received" && (
+                            <View style={styles.buttonsSameRow}>
+                                <Pressable style={styles.addFriendButton} onPress={handleAcceptFriend}>
+                                    <Text style={{ color: "white" }}>Accept</Text>
+                                </Pressable>
+
+                                <Pressable style={styles.rejectFriendButton} onPress={handleRejectFriend}>
+                                    <Text style={{ color: "white" }}>Reject</Text>
+                                </Pressable>
+                            </View>
+                        )}
+
+                        {friendStatus === "pending_sent" && (
+                            <Text style={{ color: "gray" }}>Request Sent</Text>
+                        )}
+
+                        {friendStatus === "friends" && (
+                            <Text style={{ color: "green" }}>Friends ✓</Text>
+                        )}
+                    </View>
+
+                    <Text style={styles.university}>{user.university} - {user.major}</Text>
+                    {user.bio && (
+                        <View style={{ marginTop: 16}}>
+                            <Text style={{ fontSize: 18, marginBottom: 8 }}>Bio:</Text>
+                            <Text>{user.bio}</Text>
                         </View>
                     )}
-
-                    {friendStatus === "pending_sent" && (
-                        <Text style={{ color: "gray" }}>Request Sent</Text>
-                    )}
-
-                    {friendStatus === "friends" && (
-                        <Text style={{ color: "green" }}>Friends ✓</Text>
-                    )}
                 </View>
-
-                <Text style={styles.university}>{user.university} - {user.major}</Text>
-                {user.bio && (
-                    <View style={{ marginTop: 16}}>
-                        <Text style={{ fontSize: 18, marginBottom: 8 }}>Bio:</Text>
-                        <Text>{user.bio}</Text>
-                    </View>
-                )}
             </View>
-        </View>
-        
+        </>   
+    </LinearGradient> 
     )
 
     

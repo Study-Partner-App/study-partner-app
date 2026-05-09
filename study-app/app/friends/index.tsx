@@ -2,6 +2,8 @@ import React from "react";
 import { FlatList, Text, View } from "react-native";
 import { useFriendList } from "@/app/_hooks/friendList";
 import { styles } from "@/app/_styles/globalStyles";
+import { theme } from "@/lib/theme";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function FriendsPage() {
     const { friends, loading } = useFriendList();
@@ -15,6 +17,12 @@ export default function FriendsPage() {
     }
 
     return (
+         <LinearGradient
+                            colors={theme.gradients.background}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={{ flex: 1 }}
+                        >
         <FlatList
             data={friends}
             keyExtractor={(item) => item.id}
@@ -32,5 +40,6 @@ export default function FriendsPage() {
                 );
             }}
         />
+        </LinearGradient>
     );
 }

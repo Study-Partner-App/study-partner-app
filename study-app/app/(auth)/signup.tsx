@@ -129,7 +129,9 @@ const SignUpPage = () => {
         >
 
         <View style={styles.container}>
-            <Text style={styles.hs_title}>Create Account</Text>
+            <View style={styles.loginTitleSpacing}>
+                <Text style={styles.loginTitle}>Create Account</Text>
+            </View>
             <TextInput 
                 style={styles.input}
                 placeholder="Email"

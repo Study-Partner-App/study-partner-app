@@ -2,6 +2,18 @@ import { StyleSheet } from "react-native";
 import { theme } from "@/lib/theme";
 
 export const styles = StyleSheet.create({
+    loginTitleSpacing: {
+        flex: 0.4,
+        justifyContent: "center",
+        alignItems: "center",
+        /*top padding*/
+        paddingTop: 90,
+    },
+
+    loginTitle: {
+        fontSize: 38,
+    },
+    
     // Friend Request List
     listCard: {
         backgroundColor: "#fff",
