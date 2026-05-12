@@ -1,4 +1,43 @@
 - What should we do for those who have more than one major.
     - We may need to accept major as a list.
 - Should we add college year column?
-- 
+
+
+- Perhaps we should have a block functionality so that a person doesn't spam another with friend requests.
+
+
+- Time Filtering System:
+	- Completed Integration and Testing
+	- Updated UI to display more details
+	- Ensure recommendations are based on selected course of interest
+- Study Session Creation:
+	- Enhanced navigation
+	- Implemented session creation
+- Sign up page
+	- Updated 
+- Announcement Board
+	- Properly connected to the database, so the created session are updated on the database.
+	- Finalizing and testing the feature
+- Friend Request Working
+
+## Common Package Manager and Testing Frameworks for Typescript
+- packaage manager: npx, buns, etc.
+- testing framework: Mocha/Chai
+
+## Types of Tests
+- Unit Test - Testing behavior of particular method or component
+- Integration Test - Test the edges in between two components
+    - Write mock objects that can repalce important components.
+- End to End Test - Testing collection of edges. (i.e. test workflow)
+
+## Design
+- Test-Driven-Design (TDD) - Fact Test; Write test that so it forces the code to be based on the design model
+    - Focuses on code correctness: Does it actually work?
+    - Problem: What if you don't have the right mental model?
+- Behavior-Driven-Design - Output Test; 
+    - Focused on the intended behavior of a component.
+    - Looks into: What should happen?
+
+- Instead of having many debugging statements, it can be useful to have test cases baked into the code and remove from final production code.
+- It's not good practice to import based on relative path. 
+- Since typescript is file-centric, it's better to compile first then test.
