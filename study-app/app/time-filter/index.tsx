@@ -784,7 +784,7 @@ export default function Index() {
 
   return (
     <LinearGradient
-      colors={theme.gradients.background}
+      colors={[...theme.gradients.background]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
