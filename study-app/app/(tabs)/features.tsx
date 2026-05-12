@@ -19,6 +19,7 @@ export default function Features() {
         { title: "Matching", icon: "🤗", route: "../matching"},
         { title: "Friend Requests", icon: "👥", route: "../requests"},
         { title: "Time Filter", icon: "⏰", route: "../time-filter"},
+        { title: "Friends", icon: "🤝", route: "../friends"},
     ];
 
     return (

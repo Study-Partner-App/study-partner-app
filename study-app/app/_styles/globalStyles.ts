@@ -2,6 +2,39 @@ import { StyleSheet } from "react-native";
 import { theme } from "@/lib/theme";
 
 export const styles = StyleSheet.create({
+    loginTitleSpacing: {
+        flex: 0.4,
+        justifyContent: "center",
+        alignItems: "center",
+        /*top padding*/
+        paddingTop: 90,
+    },
+
+    loginTitle: {
+        fontSize: 38,
+    },
+    
+    // Friend Request List
+    listCard: {
+        backgroundColor: "#fff",
+        padding: 16, 
+        borderRadius: 12,
+        marginBottom: 12,
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        shadowOffset: {width: 0, height: 2},
+        elevation: 3,
+        marginHorizontal: 16,
+        marginTop: 12,
+    },
+
+    listTitle: {
+        fontSize: 18,
+        fontWeight: "600",
+        marginBottom: 4,
+    },
+    
     // Profile Card
     card: {
         padding: 16,
@@ -43,6 +76,11 @@ export const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center"
     },
+
+    buttonsSameRow: {
+        flexDirection: "row",
+        gap: 10,
+    },
     
     addFriendButton: {
         backgroundColor: "#4CAF50",
@@ -50,6 +88,13 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 12,
         borderRadius: 6,
     }, 
+
+    rejectFriendButton: {
+        backgroundColor: "#f44336",
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 6,
+    },
 
     // HOME SCREEN STYLES
     hs_container: {

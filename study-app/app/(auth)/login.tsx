@@ -52,7 +52,9 @@ const LoginPage = () => {
         >
         <View style={styles.container}>
 
-            <Text style={styles.hs_title}>Welcome!</Text>
+            <View style={styles.loginTitleSpacing}>
+                <Text style={styles.loginTitle}>Welcome!</Text>
+            </View>
 
             <Text style={{fontSize: 16, fontWeight: 'bold', marginBottom: 8}}>Email:</Text>
             <TextInput 
