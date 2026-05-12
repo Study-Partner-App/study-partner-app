@@ -3,12 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from "@/lib/theme"
 import { supabase } from '@/lib/supabase'
-
-
-
 import { FlatList } from 'react-native';
-import { router } from 'expo-router';
-//import { type Href, Link, useRouter } from 'expo-router';
 
 
 import {
@@ -30,14 +25,13 @@ import { ActivityIndicator } from 'react-native';
 
 import TimePicker from './TimePicker';
 import {
-  validateThirtyMinuteRange,
   snapToThirty,
   isOnThirtyBoundary
 } from './useTimeFilter';
 
 import CourseDropdown from './CourseDropdown';
 
-//-----------------------Load courses (will probably need to load from some separate file later)---------------------------------
+//-----------------------Load courses-----------------------
 
 const COURSES_BY_SUBJECT: Record<string, string[]> = {
   "Artificial Intelligence": [
@@ -189,7 +183,6 @@ const COURSES_BY_SUBJECT: Record<string, string[]> = {
 };
 
 
-
 const normalize = (s: string) =>
   s.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
 
@@ -213,7 +206,7 @@ const courseMatches = (course: string, query: string) => {
   return false;
 };
 
-//Theme
+//-----------------------Theme-----------------------
 const palette = {
   background: '#f7f8fa',
   surface: '#ffffff',
@@ -278,7 +271,7 @@ function SegmentedControl({
   );
 }
 
-//Modern buttons look
+//-----------------------Modern buttons look-----------------------
 function PrimaryButton({ title, onPress, disabled }: { title: string; onPress: () => void; disabled?: boolean }) {
   return (
     <TouchableOpacity
@@ -317,7 +310,7 @@ function SecondaryButton({ title, onPress }: { title: string; onPress: () => voi
 }
 ``
 
-//Pill Tag for subject and course badges
+//-----------------------Pill Tag for subject and course badges-----------------------
 function Pill({ text, tone = 'neutral' }: { text: string; tone?: 'neutral' | 'brand' }) {
   const bg = tone === 'brand' ? palette.primarySoft : palette.graySoft;
   const color = tone === 'brand' ? palette.primaryDark : palette.subtext;
@@ -329,7 +322,7 @@ function Pill({ text, tone = 'neutral' }: { text: string; tone?: 'neutral' | 'br
   );
 }
 
-// Time-formatting helper (for displaying the times)
+// Time-formatting helpers (for displaying the times)
 const formatTimeRange = (start?: string, end?: string) => {
   if (!start || !end) return '';
 
@@ -342,8 +335,6 @@ const formatTimeRange = (start?: string, end?: string) => {
 
   const startDate = parse(start);
   const endDate = parse(end);
-
-  // START HERE
 
   const startStr = startDate.toLocaleTimeString(undefined, {
     hour: 'numeric',
@@ -367,7 +358,7 @@ const formatTimeRange = (start?: string, end?: string) => {
 };
 
 
-// ----- Session Card -----
+//-----------------------Session Card-----------------------
 function SessionCard({
   s,
   onPress,
@@ -452,10 +443,7 @@ function SessionCard({
   );
 }
 
-
 export default function Index() {
-  //const router = useRouter();
-
 
   // -------------------- State --------------------
   const [selectedSession, setSelectedSession] = useState<any | null>(null);
@@ -663,8 +651,6 @@ export default function Index() {
 
   //-------------------- Helpers for making sure end times don't break 30-minute logic--------------------
   //Time math helpers (24h circular clock)
-  const MAX_MINUTES = 30;
-
 
   const isHHMM = (v?: string | null): v is string =>
     !!v && /^\d{2}:\d{2}$/.test(v);
@@ -687,7 +673,7 @@ export default function Index() {
   // Forward difference from a to b (in minutes) on a 24h clock
 
   const forwardDiff = (a: number, b: number) => ((b - a + 1440) % 1440);
-  ``
+
 
   // -------------------- Handlers --------------------
   // Taking away restrictions for start and end time
@@ -819,48 +805,51 @@ export default function Index() {
             Fields marked with * are required
           </Text>
           {/* Section: Time Pickers */}
-          <View style={{ flexDirection: 'row', gap: 12 }}>
+          <View style={{ gap: 14 }}>
             {/* Start Time */}
-            <View style={{ flex: 1 }}>
+            <TimePicker
+              label="Start Time"
+              value={startTime}
+              onChange={onStartChange}
+              required
+              format="12h"
+              snap="onBlur"
+            />
+
+            {/* End Time */}
+            <View style={{ position: 'relative' }}>
               <TimePicker
-                label="Start Time"
-                value={startTime}
-                onChange={onStartChange}
+                label="End Time"
+                value={endTime}
+                onChange={onEndChange}
                 required
                 format="12h"
                 snap="onBlur"
               />
-            </View>
 
-            {/* End Time*/}
-            <View style={{ flex: 1 }}>
-              <View style={{ position: 'relative' }}>
-                <TimePicker
-                  label="End Time"
-                  value={endTime}
-                  onChange={onEndChange}
-                  required
-                  format="12h"
-                  snap="onBlur"
-                />
-
-                <Pressable
-                  onPress={addThirtyMinutes}
-                  disabled={!startTime}
+              {/* 30 minute helper button */}
+              <Pressable
+                onPress={addThirtyMinutes}
+                disabled={!startTime}
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: 0,
+                  paddingVertical: 4,
+                  paddingHorizontal: 6,
+                  opacity: startTime ? 1 : 0.4,
+                }}
+              >
+                <Text
                   style={{
-                    position: 'absolute',
-                    right: 0,
-                    top: 0,
-                    paddingVertical: 4,
-                    paddingHorizontal: 6,
-                    opacity: startTime ? 1 : 0.4,
+                    color: palette.primary,
+                    fontWeight: '600',
+                    fontSize: 12,
                   }}
                 >
-                  <Text style={{ color: palette.primary, fontWeight: '600', fontSize: 12 }}>
-                    +30 min
-                  </Text>
-                </Pressable>
-              </View>
+                  +30 min
+                </Text>
+              </Pressable>
             </View>
           </View>
 
@@ -887,8 +876,6 @@ export default function Index() {
             {/* Right chevron indicator */}
             <Text style={{ position: 'absolute', right: 12, color: palette.subtext }}>⌄</Text>
           </TouchableOpacity>
-          {/*hasSubmitted && !selectedSubject && (
-            <Text style={styles.errorText}>Subject is required</Text>)}
 
           {/* Course */}
           <CourseDropdown
@@ -899,7 +886,6 @@ export default function Index() {
             courseMatches={courseMatches}
             palette={palette}
           />
-
 
           {/* Actions */}
           <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
@@ -934,6 +920,7 @@ export default function Index() {
         {/* Loading */}
         {loading && (
           <View style={[styles.cardSurface, { padding: 16, flexDirection: 'row', alignItems: 'center', gap: 10 }]}>
+            
             {/* ActivityIndicator from react-native */}
             <ActivityIndicator color={palette.primary} />
             <Text style={{ color: palette.subtext }}>Searching sessions…</Text>
@@ -960,6 +947,9 @@ export default function Index() {
             <FlatList
               data={sessions}
               keyExtractor={(item) => item.id}
+
+              scrollEnabled={false} // Should prevent warning with flatlist
+
               renderItem={({ item }) => (
                 <SessionCard
                   s={item}
@@ -1075,6 +1065,9 @@ export default function Index() {
                     </View>
                   )}
 
+                  {/* Divider before footer */}
+                  <View style={{ height: 1, backgroundColor: palette.border, marginTop: 16 }} />
+
                   {/* ---------- Footer ---------- */}
                   <View
                     style={{
@@ -1125,7 +1118,6 @@ export default function Index() {
                               : 'Join Session'}
                       </Text>
                     </Pressable>
-                    ``
                   </View>
                 </>
               )}
@@ -1283,4 +1275,3 @@ const styles = StyleSheet.create({
     padding: 18,
   },
 });
-
