@@ -34,7 +34,19 @@ export default function ProfileDetails() {
         );
 
         if(!request) {
-            setFriendStatus("none");
+            // Check if they are already friends (in case of missing request)
+            const { data, error } = await supabase
+                .from("friends")
+                .select("*")
+                .or(
+                    `and(user_id.eq.${authUser.id},friend_id.eq.${userId}),and(user_id.eq.${userId},friend_id.eq.${authUser.id})`
+                )
+            
+            if(data && data.length > 0) {
+                setFriendStatus("friends");
+            } else {
+                setFriendStatus("none");
+            }
             return;
         }
 
@@ -183,6 +195,17 @@ export default function ProfileDetails() {
                         </View>
                     )}
                 </View>
+
+                {/* If friends, show additional information (email) */}
+                { friendStatus === "friends" && (
+                        <View style={styles.card}>
+                            <Text style={{fontSize: 18, fontWeight: "600", marginBottom: 8}}>
+                                Contact Information: 
+                            </Text>
+
+                            <Text>{user.email}</Text>
+                        </View>
+                )}
             </View>
         </>   
     </LinearGradient> 

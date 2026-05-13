@@ -1,13 +1,14 @@
 import React from "react";
-import { FlatList, Text, View } from "react-native";
+import { FlatList, Pressable, Text, View } from "react-native";
 import { useFriendList } from "@/app/_hooks/friendList";
 import { styles } from "@/app/_styles/globalStyles";
 import { theme } from "@/lib/theme";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 
 export default function FriendsPage() {
     const { friends, loading } = useFriendList();
-
+    const router = useRouter();
     if(loading) { 
         return <Text> Loading...</Text>
     }
@@ -28,15 +29,24 @@ export default function FriendsPage() {
             keyExtractor={(item) => item.id}
             renderItem={({item}) => {
                 return (
+                    <Pressable
+                        onPress={() =>
+                            router.push({
+                                pathname: "/_user-details/ProfileDetails",
+                                params: { userId: item.id },
+                            })
+                        }
+                    >
                     <View style={styles.listCard}>
-                        <Text style={styles.listTitle}>
-                            {item.first_name} {item.last_name}
-                        </Text>
+                            <Text style={styles.listTitle}>
+                                {item.first_name} {item.last_name}
+                            </Text>
 
-                        <Text>
-                            {item.university} - {item.major?.join(", ") ?? ""}
-                        </Text>
-                    </View>
+                            <Text>
+                                {item.university} - {item.major?.join(", ") ?? ""}
+                            </Text>
+                        </View>
+                    </Pressable>
                 );
             }}
         />
