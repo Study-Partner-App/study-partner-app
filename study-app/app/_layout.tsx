@@ -16,6 +16,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack
         screenOptions={{
+          headerTintColor: "#000",
           headerStyle: { backgroundColor: "#b6deed"},
         }}>
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
@@ -27,7 +28,7 @@ export default function RootLayout() {
         <Stack.Screen name="announcement" options={{ title: 'Announcements', headerShown: true }} />
         <Stack.Screen name="friends/index" options={{ title: 'Friends', headerShown: true }} />
         <Stack.Screen name="time-filter/index" options={{ title: 'Time Filter', headerShown: true }} />
-        <Stack.Screen name="study-sessions" options={{ title: 'Study Sessions', headerShown: true }} />
+        <Stack.Screen name="study-sessions" options={{ title: 'Study Sessions', headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

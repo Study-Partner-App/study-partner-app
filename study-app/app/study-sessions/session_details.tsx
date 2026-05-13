@@ -1,9 +1,9 @@
 import { View, Text, ActivityIndicator, Pressable, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { LinearGradient } from "expo-linear-gradient";
-import { StudySession } from '../_utilities/globalUtils';
+import { StudySession, LeaveSessionByUserAndSessionId } from '../_utilities/globalUtils';
 import { theme } from "@/lib/theme";
-import { use, useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { styles } from '../_styles/globalStyles';
 
@@ -38,8 +38,10 @@ export default function SessionDetails() {
             console.error("Error checking session creator:", error);
         } else if (data) {
             // Assuming you have a way to get the current user's ID, e.g., from authentication
-            const currentUser = await supabase.auth.getUser();
-            if (currentUser.data.user?.id === session?.creator_id) {
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+            if (userError) {
+                console.error("Error getting user:", userError);
+            } else if (user?.id === session?.creator_id) {
                 setIsCreator(true);
             }
         }
@@ -62,6 +64,20 @@ export default function SessionDetails() {
                 router.back();
             }
         }
+    };
+
+    const onLeaveSession = async () => {
+
+        const {data: {user}, error} = await supabase.auth.getUser();
+        if(error) {
+            console.error("Error getting user:", error);
+            return;
+        }
+        else if(user) {
+            await LeaveSessionByUserAndSessionId(user?.id, sessionId);
+        }
+
+        router.back();
     };
 
     // Fetch the sessions for the current user and place them into the sessions array.
@@ -136,6 +152,19 @@ export default function SessionDetails() {
                         <Text style={styles.session_text}>Description: {session.description}</Text>
                     </ScrollView>
                 </View>
+
+                <View style={styles.footer}>   
+                    <Pressable
+                        style={styles.button} 
+                        onPress={onLeaveSession}
+                        accessibilityRole="button"
+                        accessibilityLabel="Leave Session"
+                    >
+                        <Text style={styles.loginButtonText}>Leave Session</Text>
+                    </Pressable>
+
+                </View>
+
             </LinearGradient>
         )
     }
