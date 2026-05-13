@@ -41,16 +41,8 @@ export default function CourseDropdown({
   }, [courses, query, courseMatches]);
 
   const open = () => {
-    //setQuery('');
     setVisible(true);
   };
-
-  const close = () => {
-    // Commit typed value if user didn’t click a suggestion
-    onChange(normalizeCourse(query.trim()));
-    setVisible(false);
-  };
-  ``
 
   const select = (course: string) => {
     setQuery(course);
