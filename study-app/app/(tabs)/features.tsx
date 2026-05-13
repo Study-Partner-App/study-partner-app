@@ -5,21 +5,22 @@ import {LinearGradient } from "expo-linear-gradient";
 import { theme } from "@/lib/theme";
 import { Href } from "expo-router";
 import { styles } from "@/app/_styles/globalStyles";
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Features() {
 
     type Feature = {
         title: string,
-        icon: string,
+        icon: keyof typeof Ionicons.glyphMap,
         route: Href
     }
     const features: Feature[] = [
-        { title: "Announcement Board", icon: "📢", route: "../announcement"},
-        { title: "Study Sessions", icon: "📚", route: "../study-sessions"},
-        { title: "Matching", icon: "🤗", route: "../matching"},
-        { title: "Friend Requests", icon: "👥", route: "../requests"},
-        { title: "Time Filter", icon: "⏰", route: "../time-filter"},
-        { title: "Friends", icon: "🤝", route: "../friends"},
+        { title: "Announcement Board", icon: "megaphone", route: "../announcement"},
+        { title: "Study Sessions", icon: "book", route: "../study-sessions"},
+        { title: "Matching", icon: "sparkles", route: "../matching"},
+        { title: "Friend Requests", icon: "person-add", route: "../requests"},
+        { title: "Time Filter", icon: "time", route: "../time-filter"},
+        { title: "Friends", icon: "people", route: "../friends"},
     ];
 
     return (
@@ -30,7 +31,7 @@ export default function Features() {
       style={{ flex: 1 }}
     >
         <SafeAreaView style={styles.container}>
-            <Text style={[styles.featureTitle, {marginTop: 20}]}>Features</Text>
+            <Text style={[styles.featureTitle, {marginTop: 60}]}>CONNECT</Text>
             <View style={styles.featureGrid}>
                 {features.map((f) => (
                     <Pressable
@@ -39,12 +40,12 @@ export default function Features() {
                         style={{ marginBottom: 16, width: "48%"}}
                     >
                         <LinearGradient
-                            colors= {["#67b3e9", "#f6eff3"]}
+                            colors= {["#67b3e9", "#67b3e9"]}
                             start= {{ x:0, y:0 }}
                             end= {{ x:1, y:1 }}
                             style={styles.featureCard}
                         >
-                                <Text style={styles.featureIcon}>{f.icon}</Text>
+                                <Ionicons name={f.icon} size={28} color="black" style={styles.featureIcon} />
                                 <Text style={styles.featureText}>{f.title}</Text>
                         </LinearGradient>
                     </Pressable>

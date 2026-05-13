@@ -62,6 +62,7 @@ export default function Home() {
         end={{ x: 1, y: 1 }}
         style={{ flex: 1 }}
       >
+        <Text style={[styles.hs_main_title, {marginTop: 60}]}>LATEST</Text>
         <ScrollView contentContainerStyle={{ padding: 20 }}>
           {/* Friend Requests */}
           <Pressable onPress={() => router.push('/requests')}>

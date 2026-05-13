@@ -103,6 +103,12 @@ export const styles = StyleSheet.create({
         flex: 1,
     },
 
+    hs_main_title: {
+        fontSize: 45,
+        fontWeight: "400",
+        textAlign: "center",
+    },
+
     hs_card: {
         flex: 1,
         backgroundColor: "white",
@@ -120,7 +126,7 @@ export const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 20,
         marginBottom: 16,
-        marginTop: 50,
+        marginTop: 10,
         shadowColor: "#000",
         shadowOpacity: 0.1,
         shadowRadius: 5,
@@ -295,10 +301,10 @@ export const styles = StyleSheet.create({
 
     // FEATURE STYLES
     featureTitle: {
-        fontSize: 24,
-        fontWeight: "800",
+        fontSize: 45,
+        fontWeight: "400",
         textAlign: "center",
-        marginBottom: 24,
+        marginBottom: 65,
         color: "#111827",
     },
 
