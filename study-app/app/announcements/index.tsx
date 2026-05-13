@@ -54,6 +54,7 @@ type StudySessionRow = {
     descriptions: string | null;
     description?: string | null;
     title?: string | null;
+    category?: string | null;
 };
 
 function getTodayLocalYMD(): string {
@@ -159,6 +160,11 @@ function mapRowToAnnouncement(row: StudySessionRow): Announcement {
         ? `${row.course}${row.subject ? " — " + row.subject : ""}`
         : row.subject ?? "Study session";
 
+    const dbCategory = row.category ?? "Academic";
+    const category: "Academic" | "Social" =
+        dbCategory === "Social" ? "Social" : "Academic";
+    const tags = dbCategory === "Quiet" ? ["Quiet"] : [];
+
     return {
         id: String(row.id),
         title: row.title?.trim() ? row.title : fallbackTitle,
@@ -167,8 +173,8 @@ function mapRowToAnnouncement(row: StudySessionRow): Announcement {
         location: row.location ?? "TBD",
         sessionDate: row.date,
         distanceMiles: undefined,
-        tags: [],
-        category: "Academic",
+        tags,
+        category,
     };
 }
 
@@ -198,10 +204,6 @@ export default function AnnouncementBoardScreen() {
     const [submitting, setSubmitting] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
 
-    // Local overrides: maps session id → {category, tags} so filters work without a DB column
-    const [localCategoryMap, setLocalCategoryMap] = useState<
-        Record<string, { category: "Academic" | "Social"; tags: string[] }>
-    >({});
 
     const filters: Filter[] = ["All", "Starts soon", "Quiet", "Academic", "Social"];
 
@@ -225,9 +227,7 @@ export default function AnnouncementBoardScreen() {
     }, [resetAddForm]);
 
     // ---- fetch from Supabase ----
-    const loadAnnouncements = async (
-        overrideMap?: Record<string, { category: "Academic" | "Social"; tags: string[] }>
-    ) => {
+    const loadAnnouncements = async () => {
         setLoading(true);
         try {
             const { data, error } = await supabase
@@ -239,15 +239,7 @@ export default function AnnouncementBoardScreen() {
             if (error) throw error;
 
             const rows = (data ?? []) as StudySessionRow[];
-            const map = overrideMap ?? localCategoryMap;
-            const mapped = rows.map((row) => {
-                const base = mapRowToAnnouncement(row);
-                const override = map[String(row.id)];
-                if (override) {
-                    return { ...base, category: override.category, tags: override.tags };
-                }
-                return base;
-            });
+            const mapped = rows.map(mapRowToAnnouncement);
             setAnnouncements(mapped);
 
             console.log(`Loaded ${rows.length} announced sessions from Supabase`);
@@ -330,6 +322,7 @@ export default function AnnouncementBoardScreen() {
                 course: formCourse.trim() || null,
                 is_announced: true,
                 max_people: max,
+                category: formCategory,
             };
 
             const { data: inserted, error: insertErr } = await supabase
@@ -352,20 +345,9 @@ export default function AnnouncementBoardScreen() {
                 return;
             }
 
-            // Store the chosen category locally so filters work without a DB column
-            const newId = String(inserted?.id ?? "");
-            const override = {
-                category: formCategory === "Quiet" ? ("Academic" as const) : formCategory,
-                tags: formCategory === "Quiet" ? ["Quiet"] : [],
-            };
-            const updatedMap = newId
-                ? { ...localCategoryMap, [newId]: override }
-                : localCategoryMap;
-            if (newId) setLocalCategoryMap(updatedMap);
-
             notify("Saved", "Your study session was added.");
             closeAdd();
-            await loadAnnouncements(updatedMap);
+            await loadAnnouncements();
         } finally {
             setSubmitting(false);
         }
@@ -461,32 +443,34 @@ export default function AnnouncementBoardScreen() {
         >
             <SafeAreaView style={styles.safe}>
                 <View style={styles.page}>
-                    <Text style={styles.heading}>Today's Announcement Board</Text>
+                    <View style={styles.stickyHeader}>
+                        <Text style={styles.heading}>Today's Announcement Board</Text>
 
-                    <FlatList
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        data={filters}
-                        keyExtractor={(item) => item}
-                        contentContainerStyle={styles.chipRow}
-                        style={{ flexGrow: 0 }}
-                        renderItem={({ item }) => {
-                            const active = item === activeFilter;
-                            return (
-                                <Pressable
-                                    key={item}
-                                    onPress={() => setActiveFilter(item)}
-                                    style={[styles.chip, active && styles.chipActive]}
-                                >
-                                    <Text
-                                        style={[styles.chipText, active && styles.chipTextActive]}
+                        <FlatList
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            data={filters}
+                            keyExtractor={(item) => item}
+                            contentContainerStyle={styles.chipRow}
+                            style={{ flexGrow: 0 }}
+                            renderItem={({ item }) => {
+                                const active = item === activeFilter;
+                                return (
+                                    <Pressable
+                                        key={item}
+                                        onPress={() => setActiveFilter(item)}
+                                        style={[styles.chip, active && styles.chipActive]}
                                     >
-                                        {item}
-                                    </Text>
-                                </Pressable>
-                            );
-                        }}
-                    />
+                                        <Text
+                                            style={[styles.chipText, active && styles.chipTextActive]}
+                                        >
+                                            {item}
+                                        </Text>
+                                    </Pressable>
+                                );
+                            }}
+                        />
+                    </View>
 
                     {loading ? (
                         <ActivityIndicator size="large" style={{ marginTop: 40 }} />
@@ -559,7 +543,7 @@ export default function AnnouncementBoardScreen() {
                         accessibilityRole="button"
                         accessibilityLabel="Add study session"
                     >
-                        <Text style={styles.fabText}>+ Add study session</Text>
+                        <Text style={styles.fabText}>+</Text>
                     </Pressable>
                 </View>
             </SafeAreaView>
@@ -626,7 +610,7 @@ export default function AnnouncementBoardScreen() {
                                             style={[
                                                 styles.dropdownItem,
                                                 formSubject === subject &&
-                                                    styles.dropdownItemActive,
+                                                styles.dropdownItemActive,
                                             ]}
                                             onPress={() => {
                                                 setFormSubject(subject);
@@ -637,7 +621,7 @@ export default function AnnouncementBoardScreen() {
                                                 style={[
                                                     styles.dropdownItemText,
                                                     formSubject === subject &&
-                                                        styles.dropdownItemTextActive,
+                                                    styles.dropdownItemTextActive,
                                                 ]}
                                             >
                                                 {subject}
@@ -687,8 +671,8 @@ export default function AnnouncementBoardScreen() {
                                                 {cat === "Academic"
                                                     ? "📚 Academic"
                                                     : cat === "Social"
-                                                    ? "🤝 Social"
-                                                    : "🔇 Quiet"}
+                                                        ? "🤝 Social"
+                                                        : "🔇 Quiet"}
                                             </Text>
                                         </Pressable>
                                     );
@@ -776,6 +760,11 @@ export default function AnnouncementBoardScreen() {
 const styles = StyleSheet.create({
     safe: { flex: 1 },
     page: { flex: 1, paddingHorizontal: 16, paddingTop: Platform.OS === "android" ? 40 : 16 },
+    stickyHeader: {
+        backgroundColor: "transparent",
+        zIndex: 10,
+        paddingBottom: 4,
+    },
     heading: {
         fontSize: 22,
         fontWeight: "800",
@@ -794,7 +783,7 @@ const styles = StyleSheet.create({
     chipActive: { backgroundColor: "#2563EB" },
     chipText: { fontSize: 13, fontWeight: "600", color: "#374151" },
     chipTextActive: { color: "#FFFFFF" },
-    listContent: { paddingBottom: 100 },
+    listContent: { paddingBottom: 90 },
     card: {
         backgroundColor: "#FFFFFF",
         borderRadius: 12,
@@ -842,20 +831,21 @@ const styles = StyleSheet.create({
     btnJoinText: { fontSize: 13, fontWeight: "600", color: "#FFFFFF" },
     fab: {
         position: "absolute",
-        left: 16,
-        right: 16,
-        bottom: 24,
+        right: 40,
+        bottom: 28,
         backgroundColor: "#1D4ED8",
-        paddingVertical: 14,
-        borderRadius: 12,
+        width: 72,
+        height: 72,
+        borderRadius: 36,
         alignItems: "center",
+        justifyContent: "center",
         shadowColor: "#000",
-        shadowOpacity: 0.15,
+        shadowOpacity: 0.25,
         shadowRadius: 8,
         shadowOffset: { width: 0, height: 4 },
         elevation: 6,
     },
-    fabText: { color: "#FFFFFF", fontSize: 16, fontWeight: "700" },
+    fabText: { color: "#FFFFFF", fontSize: 36, fontWeight: "300", lineHeight: 42 },
     modalRoot: { flex: 1, justifyContent: "flex-end" },
     modalBackdrop: {
         ...StyleSheet.absoluteFillObject,
