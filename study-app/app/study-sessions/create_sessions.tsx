@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '@/lib/theme';
 import { Checkbox } from 'expo-checkbox';
-import { getCoursesBySubject, getSubjects, JoinSession } from '../_utilities/globalUtils';
+import { getCoursesBySubject, getSubjects, getTimes } from '../_utilities/globalUtils';
 
 interface StudySession {
     // Required fields
@@ -50,8 +50,9 @@ export default function CreateSessionsPage() {
     const subjects = getSubjects().map(subject => ({ label: subject, value: subject })); // This will convert the array of subjects into an array of objects with label and value properties, which is the format that the dropdown component expects.
 
     // The courses the user may choose from. Will be narrowed by the subject chosen, so the courses array will be different based on the subject selected. 
-    // TODO: Implement course dropdown selection that is dependent on the subject dropdown selection. For example, if the user selects "Computer Science" as the subject, then the course dropdown will only show computer science courses.
-    const courses = getCoursesBySubject();
+    const allCourses = getCoursesBySubject();
+
+    const times = getTimes();
 
     // Check formatting for the all fields to ensure the correct format is being used for each field. This will be called in the handleSubmit function before submitting to supabase.
     const checkFormatting = (field: keyof StudySession, value: string): boolean => {
@@ -69,6 +70,11 @@ export default function CreateSessionsPage() {
 
         return true; // Default in the event that there are no specific formatting requirements for the field.
     }
+
+    const getCoursesForSelectedSubject = (): { label: string; value: string }[] => {
+        const coursesForSubject = allCourses[sessionInfo.subject as keyof typeof allCourses] || [];
+        return coursesForSubject.map(course => ({ label: course, value: course }));
+    };
 
     // Verify that all requred fields are present and of the appropiate format, then submit the session info to supabase.
     const handleSubmit = async () => {
@@ -141,19 +147,29 @@ export default function CreateSessionsPage() {
                         onChangeText={(value) => handleChange('title', value)}
                     />
 
-                    <TextInput 
-                        style={styles.input}
-                        placeholder="Start Time (HH:MM)"
-                        placeholderTextColor={theme.palette.subtext}
-                        value={sessionInfo.startTime}
-                        onChangeText={(value) => handleChange('startTime', value)}
+                    <Dropdown
+                        style={styles.dropdownInput}
+                        placeholderStyle={styles.dropdownPlaceholder}
+                        placeholder="Select Start Time"
+                        data={times}
+                        value={sessionInfo.startTime} 
+                        labelField="label"
+                        valueField="value"
+                        onChange={function (item: any): void {
+                            handleChange('startTime', item.value);
+                        }}
                     />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="End Time (HH:MM)"
-                        placeholderTextColor={theme.palette.subtext}
-                        value={sessionInfo.endTime}
-                        onChangeText={(value) => handleChange('endTime', value)}
+                    <Dropdown
+                        style={styles.dropdownInput}
+                        placeholderStyle={styles.dropdownPlaceholder}
+                        placeholder="Select End Time"
+                        data={times}
+                        value={sessionInfo.endTime} 
+                        labelField="label"
+                        valueField="value"
+                        onChange={function (item: any): void {
+                            handleChange('endTime', item.value);
+                        }}
                     />
                     <TextInput
                         style={styles.input}
@@ -191,13 +207,18 @@ export default function CreateSessionsPage() {
                         value={sessionInfo.description}
                         onChangeText={(value) => handleChange('description', value)}
                     />
-                    <TextInput 
-                        style={styles.input}
-                        placeholder="Course (Optional)"
-                        placeholderTextColor={theme.palette.subtext}
+                    <Dropdown
+                        style={styles.dropdownInput}
+                        placeholderStyle={styles.dropdownPlaceholder}
+                        placeholder="Select Course (Optional)"
+                        data={getCoursesForSelectedSubject()}
                         value={sessionInfo.course}
-                        onChangeText={(value) => handleChange('course', value)}
-                    /> 
+                        labelField="label"
+                        valueField="value"
+                        onChange={function (item: any): void {
+                            handleChange('course', item.value);
+                        }}
+                    />
 
                     <TextInput
                         style={styles.input}
