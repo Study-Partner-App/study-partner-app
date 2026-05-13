@@ -1,8 +1,8 @@
-import { View, Text, Pressable, } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, } from 'react-native';
 import { styles } from "@/app/_styles/globalStyles";
-import { Href, useRouter } from 'expo-router';
+import { Href, useRouter, useFocusEffect } from 'expo-router';
 import { supabase } from '@/lib/supabase';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '@/lib/theme';
 import SessionScreen from './_SessionScreen';
@@ -14,8 +14,11 @@ export default function SessionPage() {
         icon: string,
         route: Href
     }
-    const create: CardNav = { title: "Create Study Session", icon: "➕", route: '/study-sessions/create_sessions' };
-    const commitments: CardNav = { title: "View Joined Sessions", icon: "📚", route: '/study-sessions/joined_sessions'}
+
+    const cards: CardNav[] = [
+        { title: "Create Study Session", icon: "➕", route: '/study-sessions/create_sessions' }, 
+        { title: "View Joined Sessions", icon: "📚", route: '/study-sessions/joined_sessions'}
+    ];
 
     const router = useRouter();
 
@@ -60,10 +63,18 @@ export default function SessionPage() {
         }
     };
 
-    // Fetch the sessions for the current user and place them into the sessions array.
-    useEffect(() => {
-        fetchSessions();
-    }, [currentUser?.id]);
+    if(loading) {
+        return (
+            <LinearGradient
+                colors={theme.gradients.background}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ flex: 1 }}
+            >
+                <ActivityIndicator />
+            </LinearGradient>
+        )
+    }
 
     return (
         <LinearGradient
@@ -75,37 +86,27 @@ export default function SessionPage() {
 
             <View style={styles.session_container}>
                 <Text style={styles.session_title}>Study Sessions</Text>
-                
-                <Pressable
-                    key={create.title}
-                    onPress={() => router.push(create.route)}
-                    style={{ marginBottom: 16, width: "48%"}}
-                >
-                    <LinearGradient
-                        colors= {["#67b3e9", "#f6eff3"]}
-                        start= {{ x:0, y:0 }}
-                        end= {{ x:1, y:1 }}
-                        style={styles.featureCard}
-                    >
-                            <Text style={styles.featureIcon}>{create.icon}</Text>
-                            <Text style={styles.featureText}>{create.title}</Text>
-                    </LinearGradient>
-                </Pressable>
-                <Pressable
-                    key={commitments.title}
-                    onPress={() => router.push(commitments.route)}
-                    style={{ marginBottom: 16, width: "48%"}}
-                >
-                    <LinearGradient
-                        colors= {["#67b3e9", "#f6eff3"]}
-                        start= {{ x:0, y:0 }}
-                        end= {{ x:1, y:1 }}
-                        style={styles.featureCard}
-                    >
-                        <Text style={styles.featureIcon}>{commitments.icon}</Text>
-                        <Text style={styles.featureText}>{commitments.title}</Text>
-                    </LinearGradient>
-                </Pressable>
+
+                <View style={styles.featureGrid}>
+                    {cards.map((c) => (
+                        <Pressable
+                            key={c.title}
+                            onPress={() => router.push(c.route)}
+                            style={{ marginBottom: 16, width: "48%"}}
+                        >
+                            <LinearGradient
+                                colors= {["#67b3e9", "#f6eff3"]}
+                                start= {{ x:0, y:0 }}
+                                end= {{ x:1, y:1 }}
+                                style={styles.featureCard}
+                            >
+                                    <Text style={styles.featureIcon}>{c.icon}</Text>
+                                    <Text style={styles.featureText}>{c.title}</Text>
+                            </LinearGradient>
+                        </Pressable>
+                    ))}
+                </View>
+
                 <Text style={styles.session_subtitle}>My Sessions</Text>
                 <SessionScreen sessions={sessions} fetchLoading={fetchLoading} creatorName={userName} fetchSessions={fetchSessions}/>
             </View>

@@ -1,4 +1,4 @@
-import { View, Text, Button, TextInput, Pressable } from 'react-native';
+import { View, Text, Button, TextInput, Pressable, ScrollView } from 'react-native';
 import { Dropdown} from 'react-native-element-dropdown';
 import { styles } from "@/app/_styles/globalStyles";
 import { useRouter } from 'expo-router';
@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '@/lib/theme';
 import { Checkbox } from 'expo-checkbox';
+import { getCoursesBySubject, getSubjects, getTimes } from '../_utilities/globalUtils';
 
 interface StudySession {
     // Required fields
@@ -25,7 +26,7 @@ interface StudySession {
 }
 
 export default function CreateSessionsPage() {
-
+    const router = useRouter();
 
     const [sessionInfo, setSessionInfo] = useState<StudySession>({
         title: '',
@@ -45,13 +46,13 @@ export default function CreateSessionsPage() {
     }
 
 
-    // The subjects that the user may choose from.
-    const subjects = [
-        { label: "Computer Science", value: "Computer Science" },
-        { label: "Math", value: "Math" },
-        { label: "Biology", value: "Biology" },
-        { label: "Chemistry", value: "Chemistry" }
-    ];
+    // The subjects that the user may choose from. Need to make it fit the format that the dropdown component used here expects.
+    const subjects = getSubjects().map(subject => ({ label: subject, value: subject })); // This will convert the array of subjects into an array of objects with label and value properties, which is the format that the dropdown component expects.
+
+    // The courses the user may choose from. Will be narrowed by the subject chosen, so the courses array will be different based on the subject selected. 
+    const allCourses = getCoursesBySubject();
+
+    const times = getTimes();
 
     // Check formatting for the all fields to ensure the correct format is being used for each field. This will be called in the handleSubmit function before submitting to supabase.
     const checkFormatting = (field: keyof StudySession, value: string): boolean => {
@@ -69,6 +70,11 @@ export default function CreateSessionsPage() {
 
         return true; // Default in the event that there are no specific formatting requirements for the field.
     }
+
+    const getCoursesForSelectedSubject = (): { label: string; value: string }[] => {
+        const coursesForSubject = allCourses[sessionInfo.subject as keyof typeof allCourses] || [];
+        return coursesForSubject.map(course => ({ label: course, value: course }));
+    };
 
     // Verify that all requred fields are present and of the appropiate format, then submit the session info to supabase.
     const handleSubmit = async () => {
@@ -116,11 +122,11 @@ export default function CreateSessionsPage() {
             alert('Error submitting study session.');
             return;
         }
-        
+
+        // If the session was successfully inserted into the database, navigate back to the previous page.
+        router.back();  
     }
 
-    // TODO: For the announced and maxParticipants fields, I will need to implement some different logic to handle the fact that these values will not just be simple strings, but for
-    // now, I will just leave them out of the form until I implement that logic.
     return (
         <LinearGradient
             colors={theme.gradients.background}
@@ -129,109 +135,120 @@ export default function CreateSessionsPage() {
             style={{ flex: 1 }}
         >
 
-            <View style={styles.container}>
-            <Text style={styles.hs_title}>Create Study Session</Text>
-
-            <View style={styles.input}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Title"
-                    placeholderTextColor={theme.palette.subtext}
-                    value={sessionInfo.title}
-                    onChangeText={(value) => handleChange('title', value)}
-                />
-
-                <TextInput 
-                    style={styles.input}
-                    placeholder="Start Time (HH:MM)"
-                    placeholderTextColor={theme.palette.subtext}
-                    value={sessionInfo.startTime}
-                    onChangeText={(value) => handleChange('startTime', value)}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="End Time (HH:MM)"
-                    placeholderTextColor={theme.palette.subtext}
-                    value={sessionInfo.endTime}
-                    onChangeText={(value) => handleChange('endTime', value)}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Date (YYYY-MM-DD)"
-                    placeholderTextColor={theme.palette.subtext}
-                    value={sessionInfo.date}
-                    onChangeText={(value) => handleChange('date', value)}
-                />
-
-                <Dropdown
-                    style={styles.dropdownInput}
-                    placeholderStyle={styles.dropdownPlaceholder}
-                    placeholder="Select Subject"
-                    data={subjects}
-                    value={sessionInfo.subject} 
-                    labelField="label"
-                    valueField="value"
-                    onChange={function (item: any): void {
-                        handleChange('subject', item.value);
-                    } }
-                />
-
-                <TextInput
-                    style={styles.input}
-                    placeholder="Location"
-                    placeholderTextColor={theme.palette.subtext}
-                    value={sessionInfo.location}
-                    onChangeText={(value) => handleChange('location', value)}
-                />
-
-                <TextInput
-                    style={styles.input}
-                    placeholder="Description (Optional)"
-                    placeholderTextColor={theme.palette.subtext}
-                    value={sessionInfo.description}
-                    onChangeText={(value) => handleChange('description', value)}
-                />
-                <TextInput 
-                    style={styles.input}
-                    placeholder="Course (Optional)"
-                    placeholderTextColor={theme.palette.subtext}
-                    value={sessionInfo.course}
-                    onChangeText={(value) => handleChange('course', value)}
-                /> 
-
-                <TextInput
-                    style={styles.input}
-                    placeholder="Max Participants (Optional)"
-                    placeholderTextColor={theme.palette.subtext}
-                    value={maxParticipants}
-                    onChangeText={(value) => setMaxParticipants(value)}
-                    keyboardType="numeric" // This will bring up the numeric keyboard on mobile devices to make it easier for the user to input a number.
-                />
+            <ScrollView style={styles.container}>
+                <Text style={styles.hs_title}>Create Study Session</Text>
 
                 <View style={styles.input}>
-                    <Text>Announce Study Session</Text>
-                    <Checkbox
-                        value={announced}
-                        onValueChange={(value) => {
-                            setAnnouncedState(value);
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Title"
+                        placeholderTextColor={theme.palette.subtext}
+                        value={sessionInfo.title}
+                        onChangeText={(value) => handleChange('title', value)}
+                    />
+
+                    <Dropdown
+                        style={styles.dropdownInput}
+                        placeholderStyle={styles.dropdownPlaceholder}
+                        placeholder="Select Start Time"
+                        data={times}
+                        value={sessionInfo.startTime} 
+                        labelField="label"
+                        valueField="value"
+                        onChange={function (item: any): void {
+                            handleChange('startTime', item.value);
                         }}
                     />
-                </View>
-                
-                <View style={{ marginTop: 20 }}>
-                    <Pressable onPress={handleSubmit}>
-                        <LinearGradient
-                            colors={theme.gradients.submitButton}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 1 }}
-                            style={styles.loginButton}
-                        >    
+                    <Dropdown
+                        style={styles.dropdownInput}
+                        placeholderStyle={styles.dropdownPlaceholder}
+                        placeholder="Select End Time"
+                        data={times}
+                        value={sessionInfo.endTime} 
+                        labelField="label"
+                        valueField="value"
+                        onChange={function (item: any): void {
+                            handleChange('endTime', item.value);
+                        }}
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Date (YYYY-MM-DD)"
+                        placeholderTextColor={theme.palette.subtext}
+                        value={sessionInfo.date}
+                        onChangeText={(value) => handleChange('date', value)}
+                    />
+
+                    <Dropdown
+                        style={styles.dropdownInput}
+                        placeholderStyle={styles.dropdownPlaceholder}
+                        placeholder="Select Subject"
+                        data={subjects}
+                        value={sessionInfo.subject} 
+                        labelField="label"
+                        valueField="value"
+                        onChange={function (item: any): void {
+                            handleChange('subject', item.value);
+                        }}
+                    />
+
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Location"
+                        placeholderTextColor={theme.palette.subtext}
+                        value={sessionInfo.location}
+                        onChangeText={(value) => handleChange('location', value)}
+                    />
+
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Description (Optional)"
+                        placeholderTextColor={theme.palette.subtext}
+                        value={sessionInfo.description}
+                        onChangeText={(value) => handleChange('description', value)}
+                    />
+                    <Dropdown
+                        style={styles.dropdownInput}
+                        placeholderStyle={styles.dropdownPlaceholder}
+                        placeholder="Select Course (Optional)"
+                        data={getCoursesForSelectedSubject()}
+                        value={sessionInfo.course}
+                        labelField="label"
+                        valueField="value"
+                        onChange={function (item: any): void {
+                            handleChange('course', item.value);
+                        }}
+                    />
+
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Max Participants (Optional)"
+                        placeholderTextColor={theme.palette.subtext}
+                        value={maxParticipants}
+                        onChangeText={(value) => setMaxParticipants(value)}
+                        keyboardType="numeric" // This will bring up the numeric keyboard on mobile devices to make it easier for the user to input a number.
+                    />
+
+                    <View style={styles.input}>
+                        <Text>Announce Study Session</Text>
+                        <Checkbox
+                            value={announced}
+                            onValueChange={(value) => {
+                                setAnnouncedState(value);
+                            }}
+                        />
+                    </View>
+                    
+                    <View style={styles.container}>
+                        <Pressable 
+                            style={styles.button}
+                            onPress={handleSubmit}
+                        >  
                             <Text style={styles.loginButtonText}>Submit</Text>
-                        </LinearGradient>
-                    </Pressable>
+                        </Pressable>
+                    </View>
                 </View>
-                </View>
-            </View>
+            </ScrollView>
         </LinearGradient>
 
     );

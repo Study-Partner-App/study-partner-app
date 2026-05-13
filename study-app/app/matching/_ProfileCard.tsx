@@ -14,7 +14,7 @@ export default function MatchCard({ user }: { user: User }) {
             style={styles.card}
             onPress={() => 
                 router.push({
-                    pathname: "/matching/ProfileDetails",
+                    pathname: "/_user-details/ProfileDetails",
                     params: {userId: user.id}
                 })
             }

@@ -3,7 +3,11 @@ import { Stack } from "expo-router";
 export default function SessionsLayout() {
 
     return(
-        <Stack screenOptions={{ headerShown: false }}>
+        <Stack screenOptions={{
+            headerShown: false,
+            headerTintColor: "#000",
+            headerStyle: { backgroundColor: "#b6deed"},
+        }}>
             <Stack.Screen name="index" options={{ headerShown: true, headerTitle: "Study Sessions" }} />
             <Stack.Screen name="create_sessions" options={{ headerShown: true, headerTitle: "Create Session" }} />
             <Stack.Screen name="joined_sessions" options={{ headerShown: true, headerTitle: "Joined Sessions"}}/>
