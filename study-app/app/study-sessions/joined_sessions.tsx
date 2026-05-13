@@ -2,11 +2,12 @@ import { supabase } from "@/lib/supabase";
 import { theme } from "@/lib/theme";
 import { User } from "@supabase/supabase-js";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
 import { styles } from "../_styles/globalStyles";
 import SessionScreen from "./_SessionScreen";
 import { Commitment, StudySession } from "../_utilities/globalUtils";
+import { useFocusEffect } from 'expo-router';
 
 export default function JoinedSessionsPage() {
     
@@ -15,7 +16,6 @@ export default function JoinedSessionsPage() {
     const [sessions, setSessions] = useState<StudySession[]>([]);
     const [commitments, setCommitments] = useState<Commitment[]>([]);
     const [fetchLoading, setFetchLoading] = useState(false);
-    const [userName, setUserName] = useState("");
     const [loadedCommitments, setLoadedCommitments] = useState(false);
     const [loadedSessions, setLoadedSessions] = useState(false);
 
@@ -30,7 +30,6 @@ export default function JoinedSessionsPage() {
                     console.error("Error fetching user profile:", error);
                 } else {
                     setCurrentUser(data);
-                    setUserName(data.first_name + " " + data.last_name);
                 }
             }
             setLoading(false);
@@ -93,15 +92,33 @@ export default function JoinedSessionsPage() {
         setLoadedSessions(true);
     };
 
-    useEffect(() => {
-        fetchCommitments();
-    }, [currentUser]);
+    useFocusEffect(
+        useCallback(() => {
+            // This block of code runs when the screen is focused, so we want to fetch the commitments and sessions here in case there were any changes (new sessions joined, sessions left, etc.) while the user was on a different screen.
+            let isActive = true;
 
-    useEffect(() => {
-        if(commitments.length > 0) {
-            fetchSessions();
-        }
-    }, [commitments]);
+            fetchCommitments();
+
+            // This is for when the screen is unfocused, so we can do cleanup here.
+            return () => {
+                isActive = false;
+            };
+
+        }, [currentUser]));
+
+
+    useFocusEffect(
+        useCallback(() => {
+            let isActive = true;
+
+            if(commitments.length > 0) {
+                fetchSessions();
+            }
+
+            return () => {
+                isActive = false;
+            };
+    }, [commitments]));
 
     if(loading || fetchLoading) {
         return (
